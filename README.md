@@ -4,4 +4,5 @@ This public GitHub Pages site is the cross-subject entry point for the learning 
 
 - `index.html` — cross-subject home page
 - `chemistry/cb02/index.html` — CB02 junior-high chemistry element navigation center
+- `english/index.html` — English self-study Units 1–6
 - `./chen-juhao-junior-math-lab/` — existing mathematics laboratory hosted in its own Pages repository

@@ -2,22 +2,233 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>初中数学动态实验室</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>柳州初中数学·动态实验室 V4.0</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f6f8fb;color:#1e293b;font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;padding:28px 16px}.wrap{width:min(860px,100%);margin:auto}.eyebrow{color:#2563eb;font-weight:800;letter-spacing:.08em;font-size:12px}.title{font-size:clamp(25px,5vw,38px);margin:7px 0 6px}.lead{color:#64748b;line-height:1.7;margin:0 0 22px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;text-decoration:none;color:inherit;box-shadow:0 4px 16px #0f172a09;transition:.16s}.card:hover{transform:translateY(-2px);border-color:#93c5fd;box-shadow:0 8px 24px #2563eb18}.icon{width:52px;height:52px;border-radius:13px;display:grid;place-items:center;font-size:25px;flex:none}.body{min-width:0}.name{font-weight:800;font-size:16px;margin-bottom:5px}.desc{font-size:13px;color:#64748b;line-height:1.5}.badge{margin-left:auto;color:#059669;font-weight:800;font-size:13px;white-space:nowrap}.note{margin-top:20px;padding:13px 15px;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;line-height:1.6;font-size:13px}@media(max-width:620px){.grid{grid-template-columns:1fr}.card{padding:15px}.title{font-size:28px}}
+:root{--ink:#172033;--muted:#64748b;--line:#dbe4ef;--paper:#fff;--bg:#f4f7fb;--blue:#2563eb;--blue2:#eff6ff;--green:#059669;--green2:#ecfdf5;--amber:#d97706;--amber2:#fff7ed;--purple:#7c3aed;--purple2:#f5f3ff;--red:#dc2626;--red2:#fef2f2;--top:1;--side:1;--bottom:1}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}button,a{font:inherit}button{cursor:pointer}a{color:inherit}.page{max-width:1500px;margin:auto;padding:18px 18px 26px}.hero{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;background:linear-gradient(135deg,#fff 0%,#eff6ff 100%);border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:0 8px 28px #0f172a0b}.eyebrow{color:var(--blue);font-size:12px;font-weight:800;letter-spacing:.12em}.hero h1{margin:6px 0 6px;font-size:clamp(25px,4vw,38px);line-height:1.15}.hero p{margin:0;color:var(--muted);line-height:1.65;max-width:860px}.hero-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.hero-actions a,.hero-actions button,.route button,.filter button,.deep{border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);padding:8px 11px;text-decoration:none;white-space:nowrap}.hero-actions a:hover,.hero-actions button:hover,.filter button:hover,.deep:hover{border-color:#93c5fd;background:var(--blue2)}.route{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.route button{font-weight:700;color:var(--muted)}.route button.active{background:var(--blue);border-color:var(--blue);color:#fff}.layout{display:grid;grid-template-columns:230px minmax(420px,1fr) minmax(320px,390px);gap:12px;align-items:start}.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:0 5px 20px #0f172a08}.filters{padding:14px;position:sticky;top:10px}.filters h2,.map h2,.lab h2{font-size:16px;margin:0 0 10px}.progress{background:var(--blue2);border:1px solid #bfdbfe;border-radius:10px;padding:10px;margin-bottom:12px}.progress strong{display:block;font-size:23px;color:var(--blue)}.progress span{font-size:12px;color:#1e40af;line-height:1.5}.filter-title{font-size:12px;color:var(--muted);font-weight:800;margin:14px 0 6px}.filter{display:grid;gap:6px}.filter button{text-align:left;padding:8px 9px;font-size:13px}.filter button.active{border-color:#93c5fd;background:var(--blue2);color:#1d4ed8;font-weight:700}.smallnote{font-size:12px;color:var(--muted);line-height:1.55;margin-top:14px}.map{padding:16px;min-height:630px}.map-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}.map-head p{color:var(--muted);font-size:12px;line-height:1.5;margin:3px 0 0}.view-note{padding:11px 12px;border-radius:10px;background:#f8fafc;border:1px solid var(--line);font-size:13px;line-height:1.6;margin:11px 0}.view-note strong{color:var(--blue)}.area{border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}.area-head{display:flex;gap:10px;align-items:center;padding:10px 12px;background:#f8fafc;border-bottom:1px solid var(--line)}.area-head strong{font-size:14px}.area-head span{font-size:12px;color:var(--muted)}.points{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:7px;padding:10px}.point{display:flex;align-items:center;gap:7px;width:100%;text-align:left;border:1px solid #e2e8f0;background:#fff;border-radius:9px;padding:8px 9px;min-height:48px;color:var(--ink);transition:.15s}.point:hover{border-color:#93c5fd;background:#f8fbff;transform:translateY(-1px)}.point.selected{border-color:var(--blue);background:var(--blue2);box-shadow:0 0 0 2px #bfdbfe}.point .code{color:var(--blue);font-size:11px;font-weight:800;min-width:58px}.point .pname{font-size:12px;line-height:1.35}.point .mark{margin-left:auto;color:var(--green);font-size:12px}.lab{padding:15px;position:sticky;top:10px}.lab-title{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.lab-title h2{margin-bottom:2px}.lab-title p{font-size:12px;color:var(--muted);margin:0;line-height:1.5}.pill{font-size:11px;border-radius:99px;padding:4px 7px;background:var(--green2);color:var(--green);white-space:nowrap}.lesson{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;font-size:13px;line-height:1.6}.lesson h3{font-size:13px;margin:9px 0 3px;color:var(--blue)}.lesson p{margin:3px 0}.lesson .exam{background:var(--amber2);border:1px solid #fed7aa;border-radius:9px;padding:8px 9px;color:#9a3412}.demo{margin-top:12px;border:1px solid var(--line);border-radius:11px;background:#fbfdff;overflow:hidden}.demo-title{padding:8px 10px;border-bottom:1px solid var(--line);font-size:12px;font-weight:800;color:var(--purple)}#scene{display:block;width:100%;height:220px;background:#fbfdff}.controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:8px 10px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}.controls input[type=range]{flex:1;min-width:120px;accent-color:var(--blue)}.controls button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 8px}.controls button:hover{border-color:#93c5fd;background:var(--blue2)}.observation{padding:9px 10px;background:#f0fdf4;color:#166534;border-top:1px solid #bbf7d0;font-size:12px;line-height:1.5;min-height:38px}.deep{display:inline-block;margin-top:10px;border-color:#93c5fd;background:var(--blue2);color:#1d4ed8;font-weight:700;font-size:12px}.teacher,.score,.foundation{display:none;padding:16px}.widebox{padding:13px 14px;border:1px solid var(--line);border-radius:12px;margin:10px 0;background:#fff}.widebox h3{font-size:15px;margin:0 0 6px;color:var(--blue)}.widebox p{font-size:13px;line-height:1.7;color:var(--muted);margin:4px 0}.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.route-table{width:100%;border-collapse:collapse;font-size:12px}.route-table th,.route-table td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top;line-height:1.5}.route-table th{color:var(--muted);background:#f8fafc}.footer{margin-top:14px;padding:11px 14px;color:var(--muted);font-size:12px;line-height:1.6;text-align:center}.hide{display:none!important}
+@media(max-width:1120px){.layout{grid-template-columns:190px minmax(380px,1fr) 330px}.points{grid-template-columns:repeat(auto-fill,minmax(185px,1fr))}}
+@media(max-width:860px){.page{padding:10px}.hero{display:block}.hero-actions{justify-content:flex-start;margin-top:12px}.layout{grid-template-columns:1fr}.filters,.lab{position:static}.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}.filters h2,.progress,.smallnote{grid-column:1/-1}.filter-title{margin-top:0}.map{min-height:0}.lab{order:3}.cols{grid-template-columns:1fr}}
+@media(max-width:520px){.page{padding:6px}.hero{padding:16px}.hero h1{font-size:26px}.filters{display:block}.filter-title{margin-top:12px}.points{grid-template-columns:1fr}.route{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}.route button{flex:none}.map{padding:11px}}
 </style>
 </head>
 <body>
-<main class="wrap">
-<div class="eyebrow">JUNIOR MATHEMATICS</div>
-<h1 class="title">📐 初中数学 · 动态实验室</h1>
-<p class="lead">选择一个实验，先看导读，再亲手改变参数、观察图形、发现规律。全部页面使用本地内嵌资源，适合受限网络环境。</p>
-<section class="grid">
-<a class="card" href="./grade9/index.html"><div class="icon" style="background:#dbeafe">🧪</div><div class="body"><div class="name">九年级数学动态实验室</div><div class="desc">17 个核心实验：二次函数、反比例函数、相似、三角函数、概率统计、三视图与综合建模。</div></div><span class="badge">✓ 新</span></a>
-<a class="card" href="./circle/index.html"><div class="icon" style="background:#fef3c7">⭕</div><div class="body"><div class="name">圆的动态实验室 V3.0 Gold</div><div class="desc">19 个圆专题实验：圆周角、切线、圆内接四边形、弧长、扇形与综合探究。</div></div><span class="badge">✓</span></a>
-</section>
-<div class="note">本数学入口不含广告、搜索引擎、统计代码或社交链接。返回九年级实验室会回到本页。</div>
-</main>
+<div class="page">
+<header class="hero">
+  <div>
+    <div class="eyebrow">LIUZHOU · JUNIOR MATHEMATICS</div>
+    <h1>📐 柳州初中数学 · 动态实验室 <small style="font-size:.52em;color:#2563eb">V4.0</small></h1>
+    <p>把七至九年级数学整理成一张可走通的知识地图：先补基础，再动手实验，最后迁移到柳州中考常见题型。当前收录 <strong>144 个知识点</strong>，并保留“圆的动态实验室 V3.0 Gold”和已有九年级深度实验。</p>
+  </div>
+  <div class="hero-actions"><a id="homeLink" href="../index.html">🏠 学习中心</a><a id="mathLink" href="../index.html">数学入口</a><button id="fontBtn">字体 ×1</button></div>
+</header>
+<nav class="route" aria-label="学习路线">
+  <button class="active" data-view="student">👨‍🎓 学生路线</button><button data-view="map">🗺 144知识点</button><button data-view="score">🎯 中考提分</button><button data-view="teacher">🧑‍🏫 教师视角</button><button data-view="foundation">🌱 基础薄弱起步</button>
+</nav>
+<div class="layout">
+  <aside class="panel filters">
+    <h2>学习导航</h2>
+    <div class="progress"><strong id="countText">144</strong><span>知识点已建立入口<br><span id="deepText">19 个深度动态实验入口</span></span></div>
+    <div><div class="filter-title">按学段顺序</div><div class="filter"><button class="active" data-grade="all">全部路线</button><button data-grade="7">七年级：数与式、几何启蒙</button><button data-grade="8">八年级：方程、函数、几何</button><button data-grade="9">九年级：函数、圆、概率综合</button></div></div>
+    <div><div class="filter-title">按领域</div><div class="filter"><button class="active" data-area="all">五大领域</button><button data-area="A">A 数与代数</button><button data-area="F">B 函数</button><button data-area="C">C 图形与几何</button><button data-area="D">D 统计与概率</button><button data-area="E">E 综合与实践</button></div></div>
+    <p class="smallnote">操作建议：先选一个知识点，阅读“为什么学”，再在右侧改变参数。绿色文字是不变量，橙色区域是中考迁移，红色提示是易错点。</p>
+  </aside>
+  <main class="panel map" id="mapPanel">
+    <div class="map-head"><div><h2 id="mapTitle">学生路线 · 从会看懂到会解决</h2><p id="mapLead">默认按基础 → 方法 → 综合排列。点开任意知识点，右侧会出现一个可操作的小实验。</p></div><span class="pill">本地资源 · 无广告</span></div>
+    <div class="view-note" id="viewNote"><strong>三步学习法：</strong>① 先做右侧“观察” ② 说出“变了什么、没变什么” ③ 再点击深度实验或挑战题。基础不牢时，从 A01、A03、C01 开始。</div>
+    <div id="mapContent"></div>
+    <section class="teacher" id="teacherContent"></section><section class="score" id="scoreContent"></section><section class="foundation" id="foundationContent"></section>
+  </main>
+  <aside class="panel lab" id="labPanel">
+    <div class="lab-title"><div><h2 id="labHeading">先选择一个知识点</h2><p id="labSub">知识点会在这里变成可观察、可操作的小实验。</p></div><span class="pill" id="labPill">准备</span></div>
+    <div class="lesson" id="lesson"><h3>怎么开始</h3><p>从中间知识地图选择一个按钮。不要急着记公式，先观察右侧图形或数据如何变化。</p></div>
+    <div class="demo"><div class="demo-title" id="demoTitle">🧪 动态观察台</div><svg id="scene" viewBox="0 0 600 220" role="img" aria-label="数学动态观察图"></svg><div class="controls" id="controls"></div><div class="observation" id="observation">选择知识点后，这里会告诉你应该观察什么。</div></div>
+    <a class="deep hide" id="deepLink" target="_self">进入深度动态实验 →</a>
+  </aside>
+</div>
+<footer class="footer">依据：义务教育数学课程标准（2022年版）与广西初中数学教学基本要求；柳州中考统一命题内容以课程标准为依据。此页面不含广告、搜索、统计、社交或无关外部跳转。</footer>
+</div>
+<script>
+(function(){
+'use strict';
+var chapterNames={A01:'有理数',A02:'实数',A03:'代数式',A04:'整式乘法与因式分解',A05:'分式与二次根式',A06:'方程',A07:'不等式',F01:'一次函数',F03:'反比例函数',F04:'二次函数',F05:'函数综合',C01:'几何基础',C02:'三角形',C03:'相似与锐角三角函数',C04:'四边形',C05:'圆',C06:'图形变换',C07:'尺规作图与证明',D01:'数据统计',D02:'数据特征',D03:'概率',E01:'中考综合专题'};
+var areaNames={A:'数与代数',F:'函数',C:'图形与几何',D:'统计与概率',E:'综合与实践'};
+var areaColors={A:'#2563eb',F:'#7c3aed',C:'#059669',D:'#d97706',E:'#dc2626'};
+var raw=`A01|A01-01|正数与负数
+A01|A01-02|数轴
+A01|A01-03|相反数
+A01|A01-04|绝对值
+A01|A01-05|有理数大小比较
+A01|A01-06|有理数加减
+A01|A01-07|有理数乘除
+A01|A01-08|有理数乘方
+A01|A01-09|混合运算
+A02|A02-01|平方根
+A02|A02-02|算术平方根
+A02|A02-03|立方根
+A02|A02-04|无理数
+A02|A02-05|实数
+A02|A02-06|实数与数轴
+A03|A03-01|用字母表示数
+A03|A03-02|整式
+A03|A03-03|单项式
+A03|A03-04|多项式
+A03|A03-05|合并同类项
+A03|A03-06|去括号
+A03|A03-07|整式加减
+A04|A04-01|幂的运算
+A04|A04-02|单项式乘法
+A04|A04-03|多项式乘法
+A04|A04-04|平方差公式
+A04|A04-05|完全平方公式
+A04|A04-06|因式分解
+A05|A05-01|分式意义
+A05|A05-02|分式基本性质
+A05|A05-03|分式运算
+A05|A05-04|二次根式
+A05|A05-05|二次根式性质
+A05|A05-06|二次根式运算
+A06|A06-01|一元一次方程
+A06|A06-02|二元一次方程
+A06|A06-03|二元一次方程组
+A06|A06-04|分式方程
+A06|A06-05|一元二次方程
+A07|A07-01|不等式性质
+A07|A07-02|一元一次不等式
+A07|A07-03|一元一次不等式组
+A07|A07-04|数轴表示解集
+F01|F01-01|正比例函数 y=kx
+F01|F01-02|一次函数 y=kx+b
+F01|F01-03|参数 k（斜率与增减性）
+F01|F01-04|参数 b（截距与平移）
+F01|F01-05|两直线交点
+F01|F01-06|一次函数与方程
+F01|F01-07|一次函数与不等式
+F03|F03-01|y=k/x 图像
+F03|F03-02|象限与增减性
+F03|F03-03|k 的几何意义
+F03|F03-04|反比例函数应用
+F04|F04-01|y=ax²
+F04|F04-02|一般式 y=ax²+bx+c
+F04|F04-03|顶点式 y=a(x-h)²+k
+F04|F04-04|开口方向与宽窄
+F04|F04-05|顶点与对称轴
+F04|F04-06|零点与判别式
+F04|F04-07|最值
+F04|F04-08|二次函数应用
+F05|F05-01|函数交点
+F05|F05-02|函数与方程
+F05|F05-03|函数与不等式
+F05|F05-04|一次+反比例综合
+F05|F05-05|一次+二次综合
+F05|F05-06|函数实际应用
+C01|C01-01|点线面
+C01|C01-02|直线射线线段
+C01|C01-03|角
+C01|C01-04|余角补角
+C01|C01-05|垂线
+C01|C01-06|平行线
+C01|C01-07|平行线性质与判定
+C02|C02-01|三角形边角关系
+C02|C02-02|三角形内角和
+C02|C02-03|外角
+C02|C02-04|全等三角形
+C02|C02-05|等腰三角形
+C02|C02-06|直角三角形
+C02|C02-07|勾股定理
+C03|C03-01|比例线段
+C03|C03-02|相似三角形
+C03|C03-03|相似判定
+C03|C03-04|相似性质
+C03|C03-05|位似
+C03|C03-06|锐角三角函数
+C03|C03-07|解直角三角形
+C04|C04-01|多边形内角和
+C04|C04-02|平行四边形
+C04|C04-03|矩形
+C04|C04-04|菱形
+C04|C04-05|正方形
+C04|C04-06|中点相关模型
+C05|C05-01|圆的基本性质
+C05|C05-02|垂径定理
+C05|C05-03|弧弦圆心角
+C05|C05-04|圆周角
+C05|C05-05|点与圆
+C05|C05-06|直线与圆
+C05|C05-07|切线
+C05|C05-08|切线性质
+C05|C05-09|圆与综合几何
+C06|C06-01|轴对称
+C06|C06-02|平移
+C06|C06-03|旋转
+C06|C06-04|中心对称
+C06|C06-05|位似
+C06|C06-06|坐标变换
+C07|C07-01|基本作图
+C07|C07-02|垂直平分线
+C07|C07-03|角平分线
+C07|C07-04|作三角形
+C07|C07-05|几何推理
+C07|C07-06|证明
+D01|D01-01|数据收集
+D01|D01-02|频数频率
+D01|D01-03|条形图
+D01|D01-04|折线图
+D01|D01-05|扇形图
+D01|D01-06|直方图
+D02|D02-01|平均数
+D02|D02-02|加权平均数
+D02|D02-03|中位数
+D02|D02-04|众数
+D02|D02-05|极差
+D02|D02-06|方差
+D03|D03-01|随机事件
+D03|D03-02|概率意义
+D03|D03-03|等可能概率
+D03|D03-04|列表法
+D03|D03-05|树状图法
+D03|D03-06|频率估计概率
+E01|E01-01|动点问题
+E01|E01-02|最值问题
+E01|E01-03|存在性问题
+E01|E01-04|分类讨论
+E01|E01-05|函数与几何综合
+E01|E01-06|相似综合
+E01|E01-07|圆综合
+E01|E01-08|折叠问题
+E01|E01-09|面积问题
+E01|E01-10|实际应用建模`;
+var points=raw.trim().split('\n').map(function(line){var p=line.split('|'),area=p[1].charAt(0),grade=gradeOf(p[1]);return{chapter:p[0],code:p[1],name:p[2],area:area,grade:grade}});
+var deepIds={
+ 'C03-02':1,'C03-06':1,'C03-07':1,'D03-02':1,'D03-06':1,'D02-01':1,'C06-06':1,'A06-05':1,'F05-01':1,'E01-10':1,
+ 'C05-01':1,'C05-02':1,'C05-03':1,'C05-04':1,'C05-05':1,'C05-06':1,'C05-07':1,'C05-08':1,'C05-09':1};
+var deepCount=Object.keys(deepIds).length;
+var state={grade:'all',area:'all',view:'student',selected:null,font:1};
+var publicSite=/\/math(?:\/|$)/.test(location.pathname);if(publicSite){document.getElementById('homeLink').href='../../index.html';document.getElementById('mathLink').href='./index.html'}
+var svg=document.getElementById('scene'),controls=document.getElementById('controls'),observation=document.getElementById('observation');
+function gradeOf(code){var n=Number(code.slice(1,3));if(code.charAt(0)==='E')return 9;if(code.charAt(0)==='F')return n<4?8:9;if(code.charAt(0)==='D')return 9;if(code.charAt(0)==='C')return n<3?7:n<5?8:9;return n<4?7:n<7?8:9}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function areaLabel(a){return areaNames[a]||a}
+function visiblePoints(){return points.filter(function(p){return(state.area==='all'||p.area===state.area)&&(state.grade==='all'||String(p.grade)===state.grade)})}
+function renderMap(){var list=visiblePoints(),groups={};list.forEach(function(p){(groups[p.chapter]||(groups[p.chapter]=[])).push(p)});var html='';Object.keys(groups).forEach(function(ch){var arr=groups[ch],area=arr[0].area;html+='<section class="area"><div class="area-head"><strong style="color:'+areaColors[area]+'">'+areaLabel(area)+'</strong><span>'+ch+' · '+chapterNames[ch]+' · '+arr.length+' 个知识点</span></div><div class="points">';arr.forEach(function(p){html+='<button class="point '+(state.selected===p.code?'selected':'')+'" data-point="'+p.code+'"><span class="code">'+p.code+'</span><span class="pname">'+esc(p.name)+'</span>'+(deepIds[p.code]?'<span class="mark">🧪</span>':'')+'</button>'});html+='</div></section>'});document.getElementById('mapContent').innerHTML=html||'<div class="view-note">当前筛选没有知识点，请换一个学段或领域。</div>';document.querySelectorAll('[data-point]').forEach(function(b){b.onclick=function(){selectPoint(b.dataset.point)}});document.getElementById('countText').textContent=list.length;document.getElementById('deepText').textContent=deepCount+' 个深度动态实验入口';}
+function journeyText(p){if(p.area==='A')return{goal:'把数量关系写成可计算、可检验的式子，形成运算与方程的基本功。',observe:'改变一个数，观察符号、大小、等式或不等式解集如何变化。',score:'选择填空的基础分、整式/分式化简、方程不等式和实际应用的列式。',error:'先确定定义域、符号和运算顺序；等式两边同乘除时要确认不为 0。'};if(p.area==='F')return{goal:'用图像、表格、关系式互相翻译，抓住参数、交点、顶点和最值。',observe:'拖动参数，观察图像位置、方向、交点和函数值的同步变化。',score:'函数图像题、参数范围、交点方程、最值建模是中高分的连接点。',error:'先看定义域和取值范围，再判断增减性；不要把图像交点误当成纵坐标。'};if(p.area==='C')return{goal:'从图形中看出不变量，用定义、定理和辅助线完成推理。',observe:'改变角度、边长或位置，寻找不变的角、边比、面积比和对称关系。',score:'全等/相似/圆/三视图/证明题要把“看图”落成可书写的依据。',error:'每一步都写清“因为……所以……”；边、角的对应关系不能凭感觉。'};if(p.area==='D')return{goal:'从数据或随机试验中读出规律，正确选择统计量和概率模型。',observe:'重复试验或改变数据，比较频率、平均数、中位数、极差等量的变化。',score:'统计图表、概率模型和数据解释通常是稳定得分点，关键在读题和表达。',error:'先判断样本空间是否等可能；频率接近概率不等于每次都相同。'};return{goal:'把多个知识点串起来，建立变量、图形、数量和条件之间的模型。',observe:'让动点或参数连续变化，观察面积、位置、交点和最值的阶段性变化。',score:'综合题要按“建系/设元→列式→分情况→验根→回到实际语境”推进。',error:'不要跳过取值范围、端点、临界状态和分类讨论。'}}
+function selectPoint(code){state.selected=code;var p=points.find(function(x){return x.code===code});if(!p)return;document.getElementById('labHeading').textContent=p.code+' · '+p.name;document.getElementById('labSub').textContent=areaLabel(p.area)+' / '+chapterNames[p.chapter]+' / 建议学段：'+p.grade+'年级';document.getElementById('labPill').textContent=deepIds[p.code]?'深度实验':'基础观察';var j=journeyText(p);document.getElementById('lesson').innerHTML='<h3>这一节要形成什么</h3><p>'+j.goal+'</p><h3>先观察什么</h3><p>'+j.observe+'</p><div class="exam"><strong>🎯 中考连接：</strong>'+j.score+'<br><strong>⚠ 易错提醒：</strong>'+j.error+'</div>';setDeep(p);renderDemo(p);renderMap()}
+function setDeep(p){var link=document.getElementById('deepLink');if(!deepIds[p.code]){link.classList.add('hide');return}if(p.code.indexOf('C05-')===0){link.href=(publicSite?'./circle/index.html':'../初中数学动态实验室/初中数学_圆的动态实验室_V3.0_Gold自主学习版.html');link.textContent='进入圆的动态实验室 V3.0 Gold →'}else{link.href=(publicSite?'./grade9/index.html':'../九年级数学动态实验室/index.html')+'?topic='+encodeURIComponent(p.code);link.textContent='进入九年级动态实验室 →'}link.classList.remove('hide')}
+function line(x1,y1,x2,y2,attrs){return'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" '+attrs+' />'}
+function text(x,y,s,attrs){return'<text x="'+x+'" y="'+y+'" '+(attrs||'')+'>'+esc(s)+'</text>'}
+function renderDemo(p){var a=p.area,code=p.code,html='',ctrl='';document.getElementById('demoTitle').textContent='🧪 '+p.name+' · 先动手再解释';if(a==='A'){var v=Number(document.getElementById('aRange')?.value||2);ctrl='数值 x = <b id="aValue">'+v.toFixed(1)+'</b><input id="aRange" type="range" min="-5" max="5" step="0.1" value="'+v+'"><button id="aReset">重置</button>';html='<rect x="30" y="105" width="540" height="2" fill="#64748b"/>';for(var i=-5;i<=5;i++){var xx=300+i*48;html+=line(xx,98,xx,114,'stroke="#64748b"');html+=text(xx,132,i===0?'0':String(i),'text-anchor="middle" font-size="12" fill="#64748b"')}html+='<circle cx="'+(300+v*48)+'" cy="106" r="12" fill="#2563eb"/><text x="300" y="58" text-anchor="middle" font-size="17" font-weight="700" fill="#1d4ed8">'+(code.indexOf('A01')===0?'在数轴上比较位置与距离':'先改变一个量，再检查结果是否满足条件')+'</text>';observation.textContent='观察蓝点：它的位置、到原点的距离或符号如何变化？把“看到的变化”说成一句完整的数学话。';}
+else if(a==='F'){var t=Number(document.getElementById('fRange')?.value||1),xv=Number(document.getElementById('fxRange')?.value||2);ctrl='参数 = <b id="fValue">'+t.toFixed(1)+'</b><input id="fRange" type="range" min="-3" max="3" step="0.1" value="'+t+'"> x = <b id="fxValue">'+xv.toFixed(1)+'</b><input id="fxRange" type="range" min="-4" max="4" step="0.1" value="'+xv+'">';var fn=code.indexOf('F04')===0?'二次函数':code.indexOf('F03')===0?'反比例函数':'一次函数';html=line(50,110,550,110,'stroke="#94a3b8" stroke-width="1.5"')+line(300,25,300,195,'stroke="#94a3b8" stroke-width="1.5"')+text(555,105,'x','font-size="12" fill="#64748b"')+text(307,28,'y','font-size="12" fill="#64748b"');for(var q=-4;q<=4;q++){var px=300+q*52;html+=line(px,106,px,114,'stroke="#94a3b8"');var py=110-q*20;html+=line(296,py,304,py,'stroke="#94a3b8"')}if(fn==='一次函数'){html+='<path d="M 80 '+(110-t*3*20)+' L 520 '+(110+t*3*20)+'" stroke="#7c3aed" stroke-width="3" fill="none"/>'}else if(fn==='反比例函数'){var d=Math.max(.5,Math.abs(t));html+='<path d="M 315 '+(110-d/0.3)+' C 340 80 390 55 520 '+(110-d/3)+' M 285 '+(110+d/0.3)+' C 260 140 210 165 80 '+(110+d/3)+'" stroke="#7c3aed" stroke-width="3" fill="none"/>'}else{var path='';for(var z=-3;z<=3;z+=.2){var yy=110-t*z*z*12;path+=(z===-3?'M ':' L ')+(300+z*52)+' '+yy}html+='<path d="'+path+'" stroke="#7c3aed" stroke-width="3" fill="none"/>'}var ypoint=fn==='一次函数'?t*xv:fn==='反比例函数'?(Math.abs(xv)<.2?0:t/xv):t*xv*xv;html+='<circle cx="'+(300+xv*52)+'" cy="'+(110-ypoint*20)+'" r="10" fill="#dc2626"/><text x="300" y="18" text-anchor="middle" font-size="16" font-weight="700" fill="#7c3aed">'+fn+'：参数变化 → 图像与函数值同步变化</text>';observation.textContent='观察红点和曲线：参数变了以后，方向、位置、开口或函数值怎样变？先说图像，再写关系式。';}
+else if(a==='C'){var ang=Number(document.getElementById('cRange')?.value||55),scale=Number(document.getElementById('cScale')?.value||1);ctrl='角/比例 = <b id="cValue">'+ang.toFixed(0)+'</b><input id="cRange" type="range" min="20" max="120" step="1" value="'+ang+'"><button id="cScaleBtn">改变大小</button>';var rad=ang*Math.PI/180,ax=170,ay=165,bx=430,by=165,cx=300+150*Math.cos(Math.PI-rad),cy=165-150*Math.sin(rad);html='<polygon points="'+ax+','+ay+' '+bx+','+by+' '+cx+','+cy+'" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/><circle cx="'+cx+'" cy="'+cy+'" r="8" fill="#dc2626"/>'+text(300,32,'拖动角度/比例，观察定理中的不变量','text-anchor="middle" font-size="16" font-weight="700" fill="#059669"')+text(300,205,'角度 ≈ '+ang.toFixed(0)+'° · 先找对应关系，再写定理','text-anchor="middle" font-size="13" fill="#475569"');if(code.indexOf('C05-')===0){html='<circle cx="300" cy="110" r="76" fill="#fef3c7" stroke="#d97706" stroke-width="3"/><line x1="300" y1="110" x2="'+(300+76*Math.cos(rad))+'" y2="'+(110-76*Math.sin(rad))+'" stroke="#dc2626" stroke-width="3"/><circle cx="'+(300+76*Math.cos(rad))+'" cy="'+(110-76*Math.sin(rad))+'" r="9" fill="#2563eb"/>'+text(300,205,'圆心角/圆周角/切线关系：改变位置，找不变量','text-anchor="middle" font-size="14" font-weight="700" fill="#059669"')}observation.textContent='观察图形：改变一个量时，哪些角、边比、面积比或对称关系保持不变？把不变量写在纸上。';}
+else if(a==='D'){var prob=Number(document.getElementById('dRange')?.value||50),hits=0;for(var n=0;n<prob;n++)if(Math.random()<.5)hits++;ctrl='试验次数 = <b id="dValue">'+prob+'</b><input id="dRange" type="range" min="10" max="200" step="10" value="'+prob+'"><button id="dRun">重复试验</button>';html='<rect x="75" y="35" width="90" height="'+(hits/prob*130)+'" fill="#60a5fa"/><rect x="205" y="35" width="90" height="'+((prob-hits)/prob*130)+'" fill="#fbbf24"/><rect x="335" y="35" width="90" height="'+(prob/200*130)+'" fill="#34d399"/>'+text(120,190,'事件发生 '+hits+' 次','text-anchor="middle" font-size="13" fill="#1e40af"')+text(250,190,'未发生 '+(prob-hits)+' 次','text-anchor="middle" font-size="13" fill="#92400e"')+text(380,190,'数据/概率','text-anchor="middle" font-size="13" fill="#166534"')+text(300,22,'重复一次，比较频率与概率','text-anchor="middle" font-size="16" font-weight="700" fill="#d97706"');observation.textContent='观察柱形高度：试验次数增加时，频率会不会稳定？统计量改变后，哪一个最敏感？';}
+else{var pos=Number(document.getElementById('eRange')?.value||3);ctrl='动点位置 = <b id="eValue">'+pos+'</b><input id="eRange" type="range" min="0" max="6" step="0.1" value="'+pos+'">';html='<line x1="85" y1="170" x2="515" y2="170" stroke="#64748b" stroke-width="3"/><polygon points="85,170 515,170 '+(85+pos/6*430)+',55" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><circle cx="'+(85+pos/6*430)+'" cy="55" r="11" fill="#dc2626"/>'+text(300,28,'动态建模：位置 → 数量关系 → 函数/最值','text-anchor="middle" font-size="16" font-weight="700" fill="#dc2626"')+text(300,205,'改变动点，观察面积、距离或交点的阶段变化','text-anchor="middle" font-size="13" fill="#475569"');observation.textContent='综合题先找变量，再写关系式；特别检查端点、临界值、定义域和是否需要分类讨论。'}svg.innerHTML=html;controls.innerHTML=ctrl;bindDemo(p)}
+function bindDemo(p){var ids=['aRange','fRange','fxRange','cRange','dRange','eRange'];ids.forEach(function(id){var el=document.getElementById(id);if(el)el.oninput=function(){renderDemo(p)}});['aReset','cScaleBtn','dRun'].forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){renderDemo(p)}})}
+function renderView(){var map=document.getElementById('mapContent'),note=document.getElementById('viewNote'),title=document.getElementById('mapTitle'),lead=document.getElementById('mapLead');document.getElementById('teacherContent').style.display=state.view==='teacher'?'block':'none';document.getElementById('scoreContent').style.display=state.view==='score'?'block':'none';document.getElementById('foundationContent').style.display=state.view==='foundation'?'block':'none';map.style.display=(state.view==='teacher'||state.view==='score'||state.view==='foundation')?'none':'block';if(state.view==='student'){title.textContent='学生路线 · 从会看懂到会解决';lead.textContent='默认按基础 → 方法 → 综合排列。点开任意知识点，右侧会出现一个可操作的小实验。';note.innerHTML='<strong>三步学习法：</strong>① 先做右侧“观察” ② 说出“变了什么、没变什么” ③ 再点击深度实验或挑战题。基础不牢时，从 A01、A03、C01 开始。'}else if(state.view==='map'){title.textContent='全量知识地图 · 144 个知识点';lead.textContent='用左侧学段和领域筛选。🧪 表示已有圆/九年级深度动态实验入口。';note.innerHTML='<strong>完整不等于一次学完：</strong>每个知识点都有基础观察入口；深度实验用于重点概念、易错边界和中考迁移。'}else if(state.view==='teacher'){title.textContent='教师视角 · 可教、可观测、可评价';lead.textContent='每节课都按“目标—操作—证据—迁移”组织。';note.innerHTML='<strong>课堂建议：</strong>投屏演示 3 分钟 → 学生两人一组操作 8 分钟 → 用一句话汇报不变量 → 完成一道迁移题。';renderTeacher()}else if(state.view==='score'){title.textContent='中考提分 · 把知识点变成得分动作';lead.textContent='柳州数学中考 120 分、120 分钟；统一命题以课标内容为依据。';note.innerHTML='<strong>提分顺序：</strong>先保住基础计算和读图分，再突破函数/几何连接点，最后训练综合题的分类讨论与书写。';renderScore()}else{title.textContent='基础薄弱起步 · 一次只补一个台阶';lead.textContent='不追求一口气学完，先建立“能看懂—能操作—能说清”的成功体验。';note.innerHTML='<strong>原则：</strong>每天 20 分钟，先复现一个已会的动作，再增加一个变量；错题先找是哪一步断了。';renderFoundation()}renderMap()}
+function renderTeacher(){document.getElementById('teacherContent').innerHTML='<div class="widebox"><h3>五个观察角度合并成一节课</h3><div class="cols"><div><p><strong>学生：</strong>3 秒内知道可动对象；拖动后看到即时变化；先猜再验证。</p><p><strong>教师：</strong>每个知识点都有目标、前置知识、可观察证据、易错提醒和迁移出口。</p><p><strong>循序渐进：</strong>基础地图 → 深度实验 → 预测/反例 → 中考题型。</p></div><div><p><strong>基础薄弱：</strong>允许重置、放大字体、降低变量数量；把一个大问题拆成一个小变化。</p><p><strong>考高分：</strong>要求学生从“我看到了”进一步说到“因为定义/定理/关系式，所以……”。</p><p><strong>评价证据：</strong>能操作、能描述不变量、能写关系式、能在变式中迁移。</p></div></div></div><div class="widebox"><h3>推荐授课顺序</h3><table class="route-table"><tr><th>阶段</th><th>主线</th><th>课堂证据</th></tr><tr><td>七年级</td><td>A01→A03→A04→C01→C02</td><td>运算有顺序；能在数轴/图形上说清位置、角和关系。</td></tr><tr><td>八年级</td><td>A05→A06→A07→F01→C03→C04</td><td>能列式、解方程/不等式；能在图像与式子之间转换。</td></tr><tr><td>九年级</td><td>F03→F04→C05→C06→D→E</td><td>能抓参数、交点、最值、圆的定理和综合题临界状态。</td></tr><tr><td>复习</td><td>错因诊断→专题实验→限时迁移</td><td>从“会做原题”升级为“会识别模型、会检查边界”。</td></tr></table></div>'}
+function renderScore(){document.getElementById('scoreContent').innerHTML='<div class="widebox"><h3>稳定得分层</h3><p>A01 有理数与实数、A03/A04 整式、A05 分式与根式、A06/A07 方程不等式、D01/D02/D03 统计概率。目标：计算准确、定义域不漏、步骤规范。</p></div><div class="widebox"><h3>连接提分层</h3><p>F01 一次函数、F03 反比例函数、F04 二次函数、C03 相似与三角函数、C05 圆。目标：参数—图像—数量—结论四者互译，抓住交点、顶点、切线、面积比等不变量。</p></div><div class="widebox"><h3>综合突破层</h3><p>E01 动点、最值、存在性、分类讨论、函数与几何综合。目标：设元建模，列出分段关系，检查取值范围、端点和临界状态，并把答案放回题意。</p></div><div class="widebox"><h3>120 分钟的答题动作</h3><table class="route-table"><tr><th>动作</th><th>检查问题</th></tr><tr><td>读图</td><td>坐标、定义域、对应边角、已知量单位是否读全？</td></tr><tr><td>建模</td><td>未知量是什么？关系式来自公式、定义还是图像交点？</td></tr><tr><td>推进</td><td>是否漏掉负值、端点、Δ=0、相切、退化或分类？</td></tr><tr><td>回看</td><td>根是否符合实际？图形、数值、文字结论是否一致？</td></tr></table></div>'}
+function renderFoundation(){document.getElementById('foundationContent').innerHTML='<div class="widebox"><h3>第一周：先把“数”站稳</h3><p>每天从 A01-02 数轴、A01-03 相反数、A01-04 绝对值开始。右侧小实验只改变一个数，练习说出“位置、方向、距离”。</p><button class="point" data-point="A01-02"><span class="code">A01-02</span><span class="pname">数轴</span></button><button class="point" data-point="A01-04"><span class="code">A01-04</span><span class="pname">绝对值</span></button></div><div class="widebox"><h3>第二周：把“式”读懂</h3><p>从 A03-01 用字母表示数 → A03-05 合并同类项 → A04-04 平方差公式。每次只做一行，先标出相同结构，再运算。</p><button class="point" data-point="A03-05"><span class="code">A03-05</span><span class="pname">合并同类项</span></button><button class="point" data-point="A04-04"><span class="code">A04-04</span><span class="pname">平方差公式</span></button></div><div class="widebox"><h3>第三周：从“图”到“关系”</h3><p>C01-03 角、C02-02 三角形内角和、F01-01 正比例函数。先看图形变化，再把一句话写成公式或定理。</p><button class="point" data-point="C02-02"><span class="code">C02-02</span><span class="pname">三角形内角和</span></button><button class="point" data-point="F01-01"><span class="code">F01-01</span><span class="pname">正比例函数 y=kx</span></button></div>';document.querySelectorAll('#foundationContent [data-point]').forEach(function(b){b.onclick=function(){selectPoint(b.dataset.point)}})}
+document.querySelectorAll('[data-grade]').forEach(function(b){b.onclick=function(){document.querySelectorAll('[data-grade]').forEach(function(x){x.classList.remove('active')});b.classList.add('active');state.grade=b.dataset.grade;renderView()}});document.querySelectorAll('[data-area]').forEach(function(b){b.onclick=function(){document.querySelectorAll('[data-area]').forEach(function(x){x.classList.remove('active')});b.classList.add('active');state.area=b.dataset.area;renderView()}});document.querySelectorAll('[data-view]').forEach(function(b){b.onclick=function(){document.querySelectorAll('[data-view]').forEach(function(x){x.classList.remove('active')});b.classList.add('active');state.view=b.dataset.view;renderView()}});document.getElementById('fontBtn').onclick=function(){state.font=state.font>=2?1:state.font+.25;document.documentElement.style.fontSize=(14*state.font)+'px';this.textContent='字体 ×'+state.font};
+renderView();selectPoint('A01-02');
+})();
+</script>
 </body>
 </html>

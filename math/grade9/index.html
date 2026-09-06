@@ -308,7 +308,7 @@ function tip(){var t=current();status.textContent=t.goal;var box=$('.tip');if(bo
 function help(){status.textContent='先选阶段，再拖动右侧滑块；观察图形、公式和侧栏数据是否同步变化。'}
 function fit(){if(scene){scene.classList.remove('pulse');void scene.offsetWidth;scene.classList.add('pulse');status.textContent='🎯 观察视图已居中，数学参数没有改变。'}}
 function showGuide(){var t=current(),back=document.createElement('div');back.className='modalBack';back.innerHTML='<div class="modal"><button class="close">关闭</button><h2>📘 '+esc(t.code)+' '+esc(t.title)+'</h2><p><b>你已经会什么：</b>初步认识坐标、函数或图形中的量。</p><p><b>你要亲手做什么：</b>'+esc(t.goal)+'</p><p><b>重点观察什么：</b>参数改变后，哪些量保持不变，哪些量跟着变化。</p><p><b>带着什么问题：</b>'+esc(t.predict[0])+'</p><p><b>学完应该会什么：</b>'+esc(t.concept)+'</p><p><b>易错提醒：</b>'+esc(t.counter)+'</p><button class="actionButton startGuide">开始实验</button></div>';document.body.appendChild(back);back.querySelector('.close').onclick=function(){back.remove()};back.querySelector('.startGuide').onclick=function(){back.remove();state.stage='experiment';state.mode='FREE';render()}}
-function init(){app=document.getElementById('app');try{state.done=JSON.parse(localStorage.getItem('math-lab-done')||'{}')}catch(e){state.done={}}resetParams();shell()}
+function init(){app=document.getElementById('app');var backHome=document.querySelector('.topbar a');if(backHome)backHome.href=/\/math\//.test(location.pathname)?'../index.html':'../柳州初中数学动态实验室/index.html';try{state.done=JSON.parse(localStorage.getItem('math-lab-done')||'{}')}catch(e){state.done={}}var q=new URLSearchParams(location.search).get('topic')||location.hash.slice(1);var wanted=topics.findIndex(function(t){return t.code===q});if(wanted>=0)state.topic=wanted;resetParams();shell()}
 document.addEventListener('DOMContentLoaded',init);
 })();
 </script>

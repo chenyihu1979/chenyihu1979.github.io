@@ -14,7 +14,9 @@ button{cursor:pointer}
 .app{display:grid;grid-template-rows:minmax(0,1fr) 8px var(--bottomHeight);height:100vh;min-height:420px}
 .main{display:grid;grid-template-columns:minmax(420px,1fr) 8px var(--sideWidth);min-height:0}
 .canvasPane{position:relative;min-width:0;min-height:0;background:#fbfcfe;overflow:hidden}
-#scene{display:block;width:100%;height:100%;touch-action:none}
+#scene{display:block;width:100%;height:100%;touch-action:none;user-select:none}
+#scene [data-drag]{cursor:grab;touch-action:none}
+#scene [data-drag]:active{cursor:grabbing}
 .topbar{position:absolute;z-index:5;top:10px;left:12px;right:12px;display:flex;align-items:flex-start;gap:8px;pointer-events:none;font-size:calc(13px * var(--topScale))}
 .topbar>*{pointer-events:auto}
 .topbar a,.topbar button,.fit{border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.94);color:var(--muted);padding:7px 11px;text-decoration:none;white-space:nowrap;box-shadow:0 1px 2px #0f172a0b}
@@ -203,8 +205,8 @@ function bindLessonActions(){
 function resetParams(){state.params=clone(current().params);state.trials=0;state.hits=0}
 function resetTopic(){resetParams();state.stage='guide';state.mode='FREE';state.answer=null;render();status.textContent='已重置当前实验'}
 function runTrials(n){var t=current(),p=state.params,fav=Math.max(0,Math.min(Number(p.fav)||0,Number(p.total)||1)),total=Math.max(1,Number(p.total)||1);for(var i=0;i<n;i++){state.trials++;if(Math.random()<fav/total)state.hits++}renderSceneOnly();status.textContent='完成 '+n+' 次随机试验：频率 '+(state.trials?fmt(state.hits/state.trials,3):'0')};
-function svgStart(){return '<svg id="scene" viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="数学动态实验图形">'}
-function svgEnd(){return '</svg>'}
+function svgStart(){return ''}
+function svgEnd(){return ''}
 function line(x1,y1,x2,y2,cls,extra){return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" class="'+(cls||'line')+'" '+(extra||'')+'/>'}
 function text(x,y,s,cls,anchor){return '<text x="'+x+'" y="'+y+'" class="'+(cls||'label')+'" text-anchor="'+(anchor||'middle')+'">'+esc(s)+'</text>'}
 function coord(x,y,ox,oy,scale){return [ox+x*scale,oy-y*scale]}
@@ -236,12 +238,74 @@ function renderSceneOnly(){
  if(t.renderer==='projection')h+=drawProjection(p);
  if(t.renderer==='intersect')h+=drawIntersect(p);
  if(t.renderer==='area')h+=drawArea(p);
- scene.outerHTML=h+svgEnd();scene=$('#scene');scene.classList.add('pulse');setTimeout(function(){if(scene)scene.classList.remove('pulse')},700);
+ scene.innerHTML=h+svgEnd();scene.classList.add('pulse');bindSceneDrag();setTimeout(function(){if(scene)scene.classList.remove('pulse')},700);
+}
+function svgPoint(e){
+ var src=e.touches&&e.touches.length?e.touches[0]:e.changedTouches&&e.changedTouches.length?e.changedTouches[0]:e;
+ var pt=scene.createSVGPoint?scene.createSVGPoint():null,m=scene.getScreenCTM?scene.getScreenCTM():null;
+ if(pt&&m){pt.x=src.clientX;pt.y=src.clientY;return pt.matrixTransform(m.inverse())}
+ var r=scene.getBoundingClientRect();return {x:(src.clientX-r.left)*900/r.width,y:(src.clientY-r.top)*560/r.height};
+}
+function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
+function setDragParam(key,value,min,max,step){
+ value=clamp(value,min,max);if(step)value=Math.round(value/step)*step;state.params[key]=Number(value.toFixed(4));
+ var input=$('[data-param="'+key+'"]'),out=$('#o-'+key);if(input)input.value=state.params[key];if(out)out.textContent=fmt(state.params[key],2);
+}
+function findDragTarget(node){
+ while(node&&node!==scene){if(node.getAttribute&&node.getAttribute('data-drag')!==null)return node;node=node.parentNode}
+ return null;
+}
+function beginSceneDrag(e,source){
+ if(state.dragging)return;var target=findDragTarget(e.target);if(!target)return;
+ e.preventDefault();state.dragging=true;state.dragSource=source;state.dragMode=target.getAttribute('data-drag');state.dragRoot=target.getAttribute('data-root')||'';state.dragStart=svgPoint(e);state.dragInitial=clone(state.params);
+ if(source==='pointer'&&scene.setPointerCapture)try{scene.setPointerCapture(e.pointerId)}catch(err){}
+ scene.classList.add('dragging');status.textContent='拖动图形中的标记点，观察参数和结论同步变化';
+}
+function moveSceneDrag(e,source){
+ if(!state.dragging||state.dragSource!==source)return;e.preventDefault();var q=svgPoint(e),mode=state.dragMode,p=state.params,initial=state.dragInitial||p,x=(q.x-450)/42,y=(300-q.y)/42;
+  if(mode==='vertex'){
+   setDragParam('h',x,-4,4,.1);setDragParam('k',y,-3,3,.1);
+  }else if(mode==='modelVertex'){
+   setDragParam('h',x,0,8,.1);setDragParam('k',y,-2,8,.1);
+  }else if(mode==='generalVertex'){
+   var a=Number(p.a)||.5,b=-2*a*x,c=a*x*x+y;setDragParam('b',b,-6,6,.1);setDragParam('c',c,-6,6,.1);
+  }else if(mode==='root'){
+   var aa=Number(p.a)||.5,bb=Number(initial.b),cc=Number(initial.c),dd=bb*bb-4*aa*cc;
+   if(dd>=0){var rr=[(-bb-Math.sqrt(dd))/(2*aa),(-bb+Math.sqrt(dd))/(2*aa)],idx=Number(state.dragRoot)||0,other=rr[idx?0:1],nr=clamp(x,-8,8);setDragParam('b',-aa*(nr+other),-8,8,.1);setDragParam('c',aa*nr*other,-8,8,.1)}
+  }else if(mode==='point'){
+   var px=Math.abs(x)<.25?(x<0?-.25:.25):x;setDragParam('x',clamp(px,-5,5),-5,5,.05);
+  }else if(mode==='similar'){
+   var dx=q.x-450,dy=q.y-90,den=Math.sqrt(560*560+360*360),proj=(dx*560+dy*360)/den/den;setDragParam('scale',proj,.25,1,.01);
+  }else if(mode==='trig'){
+   var dx2=q.x-170,dy2=440-q.y,deg=Math.atan2(dy2,Math.max(1,dx2))*180/Math.PI;setDragParam('angle',deg,10,80,1);setDragParam('hyp',Math.sqrt(dx2*dx2+dy2*dy2)/40,4,10,.1);
+  }else if(mode==='probability'){
+   setDragParam('fav',Math.round(clamp((330-q.y)/17,0,10)),0,10,1);
+  }else if(mode==='stats'){
+   setDragParam('last',Math.round(clamp((400-q.y)/18,0,20)),0,20,1);
+  }else if(mode==='projection'){
+   setDragParam('height',Math.round(clamp((400-q.y)/80,1,5)),1,5,1);setDragParam('depth',Math.round(clamp((q.x-390)/80,1,5)),1,5,1);
+  }else if(mode==='line'){
+   setDragParam('lineK',Number(initial.lineK)+(q.x-state.dragStart.x)/150,-2,2,.05);setDragParam('lineB',Number(initial.lineB)-(q.y-state.dragStart.y)/42,-4,4,.1);
+  }else if(mode==='area'){
+   setDragParam('x',clamp((q.x-110)/87.5,0,8),0,8,.1);
+  }
+  renderSceneOnly();status.textContent='正在拖动：参数、图形和公式已同步更新';
+}
+function endSceneDrag(e,source){
+ if(!state.dragging||state.dragSource!==source)return;state.dragging=false;state.dragSource='';state.dragMode='';state.dragRoot='';scene.classList.remove('dragging');
+ if(source==='pointer'&&scene.releasePointerCapture)try{scene.releasePointerCapture(e.pointerId)}catch(err){}
+ status.textContent='松开图形标记点，可继续观察右侧数据';
+}
+function bindSceneDrag(){
+ if(!scene)return;
+ scene.onpointerdown=function(e){beginSceneDrag(e,'pointer')};scene.onpointermove=function(e){moveSceneDrag(e,'pointer')};scene.onpointerup=function(e){endSceneDrag(e,'pointer')};scene.onpointercancel=function(e){endSceneDrag(e,'pointer')};
+ scene.onmousedown=function(e){beginSceneDrag(e,'mouse')};scene.onmousemove=function(e){moveSceneDrag(e,'mouse')};scene.onmouseup=function(e){endSceneDrag(e,'mouse')};
+ scene.ontouchstart=function(e){beginSceneDrag(e,'touch')};scene.ontouchmove=function(e){moveSceneDrag(e,'touch')};scene.ontouchend=function(e){endSceneDrag(e,'touch')};scene.ontouchcancel=function(e){endSceneDrag(e,'touch')};
 }
 function drawParabola(p,model){
  var a=Number(p.a),h=Number(p.h)||0,k=Number(p.k)||0,ox=450,oy=300,s=42;
  var out=axes(ox,oy,s,-8,8,-5.5,6)+pathFn(function(x){return a*(x-h)*(x-h)+k},-8,8,.05,ox,oy,s)+line(ox+h*s,oy+5.5*s,ox+h*s,oy-5.5*s,'dash');
- var v=coord(h,k,ox,oy,s);out+='<circle cx="'+v[0]+'" cy="'+v[1]+'" r="9" class="point" fill="#059669"/>'+text(v[0],v[1]-16,'V('+fmt(h)+','+fmt(k)+')','svgLabel');
+ var v=coord(h,k,ox,oy,s);out+='<circle cx="'+v[0]+'" cy="'+v[1]+'" r="11" class="point drag-target" data-drag="'+(model?'modelVertex':'vertex')+'" fill="#059669"/>'+text(v[0],v[1]-16,'V('+fmt(h)+','+fmt(k)+')','svgLabel');
  out+=text(24,38,model?'实际模型：顶点表示最值':'顶点式动态实验','svgLabel','start')+text(24,64,'y = '+fmt(a)+'(x − '+fmt(h)+')² + '+fmt(k),'svgSmall','start')+text(876,522,'改变右侧参数，观察曲线实时变化','svgSmall','end');
  if(model)out+=text(24,94,a<0?'开口向下：最高值 = '+fmt(k):'开口向上：最低值 = '+fmt(k),'svgLabel','start');
  return out;
@@ -249,48 +313,48 @@ function drawParabola(p,model){
 function drawGeneral(p){
  var a=Number(p.a),b=Number(p.b),c=Number(p.c),ox=450,oy=300,s=42,axis=-b/(2*a||1),vertex=a*axis*axis+b*axis+c,v=coord(axis,vertex,ox,oy,s);
  var out=axes(ox,oy,s,-8,8,-5.5,6)+pathFn(function(x){return a*x*x+b*x+c},-8,8,.05,ox,oy,s)+line(ox+axis*s,oy+5.5*s,ox+axis*s,oy-5.5*s,'dash');
- out+='<circle cx="'+v[0]+'" cy="'+v[1]+'" r="9" class="point" fill="#059669"/>'+text(v[0],v[1]-16,'V('+fmt(axis)+','+fmt(vertex)+')','svgLabel')+text(24,38,'一般式实验','svgLabel','start')+text(24,64,'y = '+fmt(a)+'x² + '+fmt(b)+'x + '+fmt(c),'svgSmall','start')+text(24,92,'对称轴 x = '+fmt(axis),'svgLabel','start');return out;
+ out+='<circle cx="'+v[0]+'" cy="'+v[1]+'" r="11" class="point drag-target" data-drag="generalVertex" fill="#059669"/>'+text(v[0],v[1]-16,'V('+fmt(axis)+','+fmt(vertex)+')','svgLabel')+text(24,38,'一般式实验','svgLabel','start')+text(24,64,'y = '+fmt(a)+'x² + '+fmt(b)+'x + '+fmt(c),'svgSmall','start')+text(24,92,'对称轴 x = '+fmt(axis),'svgLabel','start');return out;
 }
 function drawRoots(p){
  var a=Number(p.a)||.5,b=Number(p.b),c=Number(p.c),D=b*b-4*a*c,ox=450,oy=300,s=42;
  var out=axes(ox,oy,s,-8,8,-5.5,6)+pathFn(function(x){return a*x*x+b*x+c},-8,8,.05,ox,oy,s)+text(24,38,'根与判别式','svgLabel','start')+text(24,64,'Δ = '+fmt(D),'svgLabel','start');
- if(D>1e-8){var r1=(-b-Math.sqrt(D))/(2*a),r2=(-b+Math.sqrt(D))/(2*a);[r1,r2].forEach(function(r){var q=coord(r,0,ox,oy,s);out+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="8" class="point" fill="#dc2626"/>'+text(q[0],q[1]+28,'x='+fmt(r),'svgLabel')})}
- else if(Math.abs(D)<=1e-8){var r=-b/(2*a),q=coord(r,0,ox,oy,s);out+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="9" class="point" fill="#d97706"/>'+text(q[0],q[1]+28,'重根 x='+fmt(r),'svgLabel')}
+ if(D>1e-8){var r1=(-b-Math.sqrt(D))/(2*a),r2=(-b+Math.sqrt(D))/(2*a);[r1,r2].forEach(function(r,idx){var q=coord(r,0,ox,oy,s);out+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="11" class="point drag-target" data-drag="root" data-root="'+idx+'" fill="#dc2626"/>'+text(q[0],q[1]+28,'x='+fmt(r),'svgLabel')})}
+ else if(Math.abs(D)<=1e-8){var r=-b/(2*a),q=coord(r,0,ox,oy,s);out+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="11" class="point drag-target" data-drag="root" data-root="0" fill="#d97706"/>'+text(q[0],q[1]+28,'重根 x='+fmt(r),'svgLabel')}
  out+=text(24,94,D>1e-8?'两个交点':Math.abs(D)<=1e-8?'一个交点':'没有 x 轴交点','svgSmall','start')+text(876,522,'交点横坐标就是方程的实根','svgSmall','end');return out;
 }
 function drawReciprocal(p){
  var k=Number(p.k)||.1,x=Number(p.x);if(Math.abs(x)<.2)x=x<0?-.2:.2;var y=k/x,ox=450,oy=300,s=42;
  var out=axes(ox,oy,s,-8,8,-5.5,6)+pathFn(function(q){return k/q},-8,-.2,.03,ox,oy,s)+pathFn(function(q){return k/q},.2,8,.03,ox,oy,s);
  var q=coord(x,y,ox,oy,s),px=coord(x,0,ox,oy,s),py=coord(0,y,ox,oy,s),area=Math.abs(x*y);
- out+=line(q[0],q[1],px[0],px[1],'dash')+line(q[0],q[1],py[0],py[1],'dash')+'<rect x="'+Math.min(q[0],py[0])+'" y="'+Math.min(q[1],px[1])+'" width="'+Math.abs(px[0]-py[0])+'" height="'+Math.abs(px[1]-py[1])+'" fill="#dbeafe" fill-opacity=".5" stroke="#93c5fd" stroke-width="2"/><circle cx="'+q[0]+'" cy="'+q[1]+'" r="10" class="point" fill="#7c3aed"/>'+text(q[0]+14,q[1]-14,'P('+fmt(x)+','+fmt(y)+')','svgLabel','start')+text(24,38,'反比例函数','svgLabel','start')+text(24,64,'xy = k = '+fmt(k),'svgSmall','start')+text(24,92,'矩形面积 |xy| = '+fmt(area),'svgLabel','start');return out;
+ out+=line(q[0],q[1],px[0],px[1],'dash')+line(q[0],q[1],py[0],py[1],'dash')+'<rect x="'+Math.min(q[0],py[0])+'" y="'+Math.min(q[1],px[1])+'" width="'+Math.abs(px[0]-py[0])+'" height="'+Math.abs(px[1]-py[1])+'" fill="#dbeafe" fill-opacity=".5" stroke="#93c5fd" stroke-width="2"/><circle cx="'+q[0]+'" cy="'+q[1]+'" r="11" class="point drag-target" data-drag="point" fill="#7c3aed"/>'+text(q[0]+14,q[1]-14,'P('+fmt(x)+','+fmt(y)+')','svgLabel','start')+text(24,38,'反比例函数','svgLabel','start')+text(24,64,'xy = k = '+fmt(k),'svgSmall','start')+text(24,92,'矩形面积 |xy| = '+fmt(area),'svgLabel','start');return out;
 }
 function drawSimilar(p){
  var m=Number(p.scale),A=[450,90],B=[170,450],C=[730,450],D=[A[0]+m*(B[0]-A[0]),A[1]+m*(B[1]-A[1])],E=[A[0]+m*(C[0]-A[0]),A[1]+m*(C[1]-A[1])];
- var out='<polygon points="'+A+' '+B+' '+C+'" class="shape"/><polygon points="'+A+' '+D+' '+E+'" class="shape2"/>'+line(D[0],D[1],E[0],E[1],'dash')+text(A[0],A[1]-18,'A','svgLabel')+text(B[0]-14,B[1]+22,'B','svgLabel')+text(C[0]+14,C[1]+22,'C','svgLabel')+text(D[0]-12,D[1]-10,'D','svgLabel')+text(E[0]+12,E[1]-10,'E','svgLabel')+text(24,38,'相似三角形实验','svgLabel','start')+text(24,68,'相似比 m = '+fmt(m),'svgLabel','start')+text(24,98,'面积比 = m² = '+fmt(m*m),'svgSmall','start')+text(876,522,'DE ∥ BC，观察对应边成比例','svgSmall','end');return out;
+ var out='<polygon points="'+A+' '+B+' '+C+'" class="shape"/><polygon points="'+A+' '+D+' '+E+'" class="shape2 drag-target" data-drag="similar"/>'+line(D[0],D[1],E[0],E[1],'dash')+text(A[0],A[1]-18,'A','svgLabel')+text(B[0]-14,B[1]+22,'B','svgLabel')+text(C[0]+14,C[1]+22,'C','svgLabel')+text(D[0]-12,D[1]-10,'D','svgLabel')+text(E[0]+12,E[1]-10,'E','svgLabel')+text(24,38,'相似三角形实验','svgLabel','start')+text(24,68,'相似比 m = '+fmt(m),'svgLabel','start')+text(24,98,'面积比 = m² = '+fmt(m*m),'svgSmall','start')+text(876,522,'DE ∥ BC，观察对应边成比例','svgSmall','end');return out;
 }
 function drawTrig(p){
  var deg=Number(p.angle),rad=deg*Math.PI/180,hyp=Number(p.hyp),s=40,A=[170,440],adj=hyp*Math.cos(rad)*s,opp=hyp*Math.sin(rad)*s,B=[A[0]+adj,A[1]],C=[A[0],A[1]-opp],sin=Math.sin(rad),cos=Math.cos(rad),tan=Math.tan(rad);
- var out='<polygon points="'+A+' '+B+' '+C+'" class="shape"/>'+line(C[0],C[1],C[0]+35,C[1],'dash')+line(C[0]+35,C[1],C[0]+35,C[1]+35,'dash')+text(A[0]+34,A[1]-10,'θ='+deg+'°','svgLabel','start')+text((A[0]+B[0])/2,B[1]+25,'邻边 '+fmt(adj/s),'svgSmall')+text(C[0]-45,(B[1]+C[1])/2,'对边 '+fmt(opp/s),'svgSmall','end')+text((A[0]+C[0])/2-10,(A[1]+C[1])/2-16,'斜边 '+fmt(hyp),'svgSmall')+text(24,38,'锐角三角函数','svgLabel','start')+text(24,70,'sinθ = '+fmt(sin,3)+'   cosθ = '+fmt(cos,3),'svgLabel','start')+text(24,100,'tanθ = '+fmt(tan,3),'svgLabel','start')+text(876,522,'改变角度，观察比值而不是长度','svgSmall','end');return out;
+ var out='<polygon points="'+A+' '+B+' '+C+'" class="shape drag-target" data-drag="trig"/>'+line(C[0],C[1],C[0]+35,C[1],'dash')+line(C[0]+35,C[1],C[0]+35,C[1]+35,'dash')+text(A[0]+34,A[1]-10,'θ='+deg+'°','svgLabel','start')+text((A[0]+B[0])/2,B[1]+25,'邻边 '+fmt(adj/s),'svgSmall')+text(C[0]-45,(B[1]+C[1])/2,'对边 '+fmt(opp/s),'svgSmall','end')+text((A[0]+C[0])/2-10,(A[1]+C[1])/2-16,'斜边 '+fmt(hyp),'svgSmall')+text(24,38,'锐角三角函数','svgLabel','start')+text(24,70,'sinθ = '+fmt(sin,3)+'   cosθ = '+fmt(cos,3),'svgLabel','start')+text(24,100,'tanθ = '+fmt(tan,3),'svgLabel','start')+text(876,522,'改变角度，观察比值而不是长度','svgSmall','end');return out;
 }
 function drawProbability(p){
  var total=Math.max(1,Number(p.total)||1),fav=Math.max(0,Math.min(total,Number(p.fav)||0)),prob=fav/total,freq=state.trials?state.hits/state.trials:0;
- var out='<rect x="90" y="100" width="720" height="300" rx="18" fill="#f8fafc" stroke="#dbe5ef" stroke-width="2"/>'+text(450,65,'概率是“有利结果”占“所有等可能结果”的比例','svgLabel')+text(240,445,'理论概率 P = '+fav+'/'+total+' = '+fmt(prob,3),'svgLabel')+text(660,445,'实验频率 = '+(state.trials?state.hits+'/'+state.trials+' = '+fmt(freq,3):'尚未试验'),'svgLabel')+'<rect x="170" y="160" width="220" height="170" rx="10" fill="#dbeafe"/><rect x="510" y="'+(330-170*freq)+'" width="220" height="'+(170*freq)+'" rx="10" fill="#fbbf24"/>'+text(280,145,'理论比例','svgSmall')+text(620,145,'实验频率','svgSmall')+text(280,355,fmt(prob,3),'svgLabel')+text(620,355,fmt(freq,3),'svgLabel')+text(24,510,'点击右侧按钮，重复随机试验','svgSmall','start');return out;
+ var out='<rect x="90" y="100" width="720" height="300" rx="18" fill="#f8fafc" stroke="#dbe5ef" stroke-width="2"/>'+text(450,65,'概率是“有利结果”占“所有等可能结果”的比例','svgLabel')+text(240,445,'理论概率 P = '+fav+'/'+total+' = '+fmt(prob,3),'svgLabel')+text(660,445,'实验频率 = '+(state.trials?state.hits+'/'+state.trials+' = '+fmt(freq,3):'尚未试验'),'svgLabel')+'<rect x="170" y="160" width="220" height="170" rx="10" fill="#dbeafe"/><rect x="510" y="'+(330-170*freq)+'" width="220" height="'+(170*freq)+'" rx="10" fill="#fbbf24"/><rect x="510" y="160" width="220" height="170" rx="10" fill="transparent" class="drag-target" data-drag="probability"/>'+text(280,145,'理论比例','svgSmall')+text(620,145,'实验频率（拖动此柱）','svgSmall')+text(280,355,fmt(prob,3),'svgLabel')+text(620,355,fmt(freq,3),'svgLabel')+text(24,510,'点击右侧按钮或拖动黄色柱，重复随机试验','svgSmall','start');return out;
 }
 function drawStats(p){
  var vals=[6,8,8,9,10,12,Number(p.last)||0],sorted=vals.slice().sort(function(a,b){return a-b}),mean=vals.reduce(function(a,b){return a+b},0)/vals.length,med=sorted[3],range=Math.max.apply(null,vals)-Math.min.apply(null,vals),out=axes(100,400,42,0,8,0,16);
- vals.forEach(function(v,i){var x=150+i*95,y=400-v*18;out+='<rect x="'+(x-22)+'" y="'+y+'" width="44" height="'+(v*18)+'" rx="5" class="bar"/>'+text(x,y-10,'x'+(i+1)+'='+fmt(v),'svgSmall')});
+ vals.forEach(function(v,i){var x=150+i*95,y=400-v*18;out+='<rect x="'+(x-22)+'" y="'+y+'" width="44" height="'+(v*18)+'" rx="5" class="'+(i===6?'bar drag-target':'bar')+'" '+(i===6?'data-drag="stats"':'')+'/>'+text(x,y-10,'x'+(i+1)+'='+fmt(v),'svgSmall')});
  out+=text(24,38,'统计量实验','svgLabel','start')+text(24,70,'平均数 = '+fmt(mean,2)+'   中位数 = '+fmt(med)+'   极差 = '+fmt(range),'svgLabel','start')+text(876,522,'把最后一个数据调成极端值，比较三种统计量','svgSmall','end');return out;
 }
 function drawProjection(p){
  var H=Number(p.height)||3,D=Number(p.depth)||2,base=80,frontX=150,frontY=400,w=base*3,h=H*base,d=D*base;
- var out=text(24,38,'立体与三视图','svgLabel','start')+'<polygon points="'+frontX+','+(frontY-h)+' '+(frontX+w)+','+(frontY-h)+' '+(frontX+w)+','+frontY+' '+frontX+','+frontY+'" class="shape"/><polygon points="'+frontX+','+(frontY-h)+' '+(frontX+d)+','+(frontY-h-d*.55)+' '+(frontX+w+d)+','+(frontY-h-d*.55)+' '+(frontX+w)+','+(frontY-h)+'" class="shape2"/><polygon points="'+(frontX+w)+','+(frontY-h)+' '+(frontX+w+d)+','+(frontY-h-d*.55)+' '+(frontX+w+d)+','+(frontY-d*.55)+' '+(frontX+w)+','+frontY+'" fill="#ede9fe" stroke="#7c3aed" stroke-width="3"/>'+text(350,480,'主视图：长×高 = 3×'+H,'svgLabel')+text(620,480,'俯视图：长×宽 = 3×'+D,'svgLabel')+text(770,250,'左视图：宽×高','svgSmall')+text(24,90,'高度 h='+H+'，深度 d='+D,'svgLabel','start')+text(876,522,'改变高度和深度，比较三个视图','svgSmall','end');return out;
+ var out=text(24,38,'立体与三视图','svgLabel','start')+'<polygon points="'+frontX+','+(frontY-h)+' '+(frontX+w)+','+(frontY-h)+' '+(frontX+w)+','+frontY+' '+frontX+','+frontY+'" class="shape drag-target" data-drag="projection"/><polygon points="'+frontX+','+(frontY-h)+' '+(frontX+d)+','+(frontY-h-d*.55)+' '+(frontX+w+d)+','+(frontY-h-d*.55)+' '+(frontX+w)+','+(frontY-h)+'" class="shape2"/><polygon points="'+(frontX+w)+','+(frontY-h)+' '+(frontX+w+d)+','+(frontY-h-d*.55)+' '+(frontX+w+d)+','+(frontY-d*.55)+' '+(frontX+w)+','+frontY+'" fill="#ede9fe" stroke="#7c3aed" stroke-width="3"/>'+text(350,480,'主视图：长×高 = 3×'+H,'svgLabel')+text(620,480,'俯视图：长×宽 = 3×'+D,'svgLabel')+text(770,250,'左视图：宽×高','svgSmall')+text(24,90,'高度 h='+H+'，深度 d='+D,'svgLabel','start')+text(876,522,'拖动蓝色主视图，比较三个视图','svgSmall','end');return out;
 }
 function drawIntersect(p){
  var lk=Number(p.lineK),lb=Number(p.lineB),a=Number(p.a)||.1,ox=450,oy=300,s=42,out=axes(ox,oy,s,-8,8,-5.5,6)+pathFn(function(x){return a*x*x},-8,8,.05,ox,oy,s);
- var d='',hits=[];for(var x=-8;x<=8;x+=.04){var y=lk*x+lb;if(y>-6&&y<7){var q=coord(x,y,ox,oy,s);d+=(d?'L':'M')+fmt(q[0],1)+' '+fmt(q[1],1);var diff=a*x*x-y;if(Math.abs(diff)<.05)hits.push([x,y])}}out+='<path d="'+d+'" class="curve2"/>';var last=-999;hits.forEach(function(pt){if(Math.abs(pt[0]-last)>.25){var q=coord(pt[0],pt[1],ox,oy,s);out+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="9" class="point" fill="#d97706"/>';last=pt[0]}});out+=text(24,38,'函数交点实验','svgLabel','start')+text(24,68,'直线 y='+fmt(lk)+'x+'+fmt(lb)+'；抛物线 y='+fmt(a)+'x²','svgSmall','start')+text(24,98,'交点 = 联立方程的解','svgLabel','start');return out;
+ var d='',hits=[];for(var x=-8;x<=8;x+=.04){var y=lk*x+lb;if(y>-6&&y<7){var q=coord(x,y,ox,oy,s);d+=(d?'L':'M')+fmt(q[0],1)+' '+fmt(q[1],1);var diff=a*x*x-y;if(Math.abs(diff)<.05)hits.push([x,y])}}out+='<path d="'+d+'" class="curve2 drag-target" data-drag="line"/>';var last=-999;hits.forEach(function(pt){if(Math.abs(pt[0]-last)>.25){var q=coord(pt[0],pt[1],ox,oy,s);out+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="10" class="point drag-target" data-drag="line" fill="#d97706"/>';last=pt[0]}});out+=text(24,38,'函数交点实验','svgLabel','start')+text(24,68,'直线 y='+fmt(lk)+'x+'+fmt(lb)+'；抛物线 y='+fmt(a)+'x²','svgSmall','start')+text(24,98,'交点 = 联立方程的解','svgLabel','start');return out;
 }
 function drawArea(p){
- var x=Math.max(0,Math.min(8,Number(p.x)||0)),A=[110,430],B=[810,430],C=[110+x*87.5,120],area=x*8/2, out='<polygon points="'+A+' '+B+' '+C+'" class="shape"/>'+line(C[0],C[1],C[0],430,'dash')+text(A[0]-12,A[1]+24,'A','svgLabel')+text(B[0]+12,B[1]+24,'B','svgLabel')+text(C[0]+10,C[1]-12,'P('+fmt(x)+',8)','svgLabel','start')+text(24,38,'动点与面积','svgLabel','start')+text(24,70,'底边 AP = '+fmt(x)+'，高 = 8，面积 = '+fmt(area),'svgLabel','start')+text(876,522,'拖动 x，观察面积与底边成正比','svgSmall','end');return out;
+ var x=Math.max(0,Math.min(8,Number(p.x)||0)),A=[110,430],B=[810,430],C=[110+x*87.5,120],area=x*8/2, out='<polygon points="'+A+' '+B+' '+C+'" class="shape drag-target" data-drag="area"/>'+line(C[0],C[1],C[0],430,'dash')+'<circle cx="'+C[0]+'" cy="'+C[1]+'" r="11" class="point drag-target" data-drag="area" fill="#dc2626"/>'+text(A[0]-12,A[1]+24,'A','svgLabel')+text(B[0]+12,B[1]+24,'B','svgLabel')+text(C[0]+10,C[1]-12,'P('+fmt(x)+',8)','svgLabel','start')+text(24,38,'动点与面积','svgLabel','start')+text(24,70,'底边 AP = '+fmt(x)+'，高 = 8，面积 = '+fmt(area),'svgLabel','start')+text(876,522,'拖动红色动点或三角形，观察面积与底边成正比','svgSmall','end');return out;
 }
 function discoverText(t){
  var p=state.params;
@@ -305,7 +369,7 @@ function discoverText(t){
 }
 function updateModes(){document.querySelectorAll('.mode').forEach(function(b){var a=b.dataset.mode===state.mode;b.classList.toggle('active',a)})}
 function tip(){var t=current();status.textContent=t.goal;var box=$('.tip');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'});else{state.stage='experiment';render()}};
-function help(){status.textContent='先选阶段，再拖动右侧滑块；观察图形、公式和侧栏数据是否同步变化。'}
+function help(){status.textContent='先选阶段；可拖动图形中的彩色标记点/图形，也可拖动右侧滑块，观察图形、公式和数据同步变化。'}
 function fit(){if(scene){scene.classList.remove('pulse');void scene.offsetWidth;scene.classList.add('pulse');status.textContent='🎯 观察视图已居中，数学参数没有改变。'}}
 function showGuide(){var t=current(),back=document.createElement('div');back.className='modalBack';back.innerHTML='<div class="modal"><button class="close">关闭</button><h2>📘 '+esc(t.code)+' '+esc(t.title)+'</h2><p><b>你已经会什么：</b>初步认识坐标、函数或图形中的量。</p><p><b>你要亲手做什么：</b>'+esc(t.goal)+'</p><p><b>重点观察什么：</b>参数改变后，哪些量保持不变，哪些量跟着变化。</p><p><b>带着什么问题：</b>'+esc(t.predict[0])+'</p><p><b>学完应该会什么：</b>'+esc(t.concept)+'</p><p><b>易错提醒：</b>'+esc(t.counter)+'</p><button class="actionButton startGuide">开始实验</button></div>';document.body.appendChild(back);back.querySelector('.close').onclick=function(){back.remove()};back.querySelector('.startGuide').onclick=function(){back.remove();state.stage='experiment';state.mode='FREE';render()}}
 function init(){app=document.getElementById('app');var backHome=document.querySelector('.topbar a');if(backHome)backHome.href=/\/math\//.test(location.pathname)?'../index.html':'../柳州初中数学动态实验室/index.html';try{state.done=JSON.parse(localStorage.getItem('math-lab-done')||'{}')}catch(e){state.done={}}var q=new URLSearchParams(location.search).get('topic')||location.hash.slice(1);var wanted=topics.findIndex(function(t){return t.code===q});if(wanted>=0)state.topic=wanted;resetParams();shell()}

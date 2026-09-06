@@ -11,6 +11,7 @@
 @media(max-width:860px){.page{padding:10px}.hero{display:block}.hero-actions{justify-content:flex-start;margin-top:12px}.layout{grid-template-columns:1fr}.filters,.lab{position:static}.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}.filters h2,.progress,.smallnote{grid-column:1/-1}.filter-title{margin-top:0}.map{min-height:0}.lab{order:3}.cols{grid-template-columns:1fr}}
 @media(max-width:520px){.page{padding:6px}.hero{padding:16px}.hero h1{font-size:26px}.filters{display:block}.filter-title{margin-top:12px}.points{grid-template-columns:1fr}.route{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}.route button{flex:none}.map{padding:11px}}
 .lab-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:-3px 0 12px}.nav-toggle{border:1px solid #93c5fd;border-radius:9px;background:var(--blue2);color:#1d4ed8;padding:8px 11px;font-weight:800;font-size:12px}.nav-toggle:hover{background:#dbeafe}.lab-mode{font-size:12px;color:var(--muted);text-align:right}.layout.focus-mode{grid-template-columns:minmax(0,1fr)}.layout.focus-mode .filters,.layout.focus-mode .map{display:none}.layout.focus-mode .lab{grid-column:1;position:static;min-height:calc(100vh - 190px);padding:22px}.layout.focus-mode .lab-title h2{font-size:clamp(21px,3vw,30px)}.layout.focus-mode .lab-title p{font-size:14px}.layout.focus-mode .lesson{font-size:15px;max-width:1120px}.layout.focus-mode .lesson h3{font-size:16px;margin-top:13px}.layout.focus-mode .demo{margin-top:18px}.layout.focus-mode .demo-title{font-size:15px;padding:11px 14px}.layout.focus-mode #scene{height:auto;min-height:360px;aspect-ratio:600 / 260}.layout.focus-mode .controls{font-size:14px;padding:12px 14px}.layout.focus-mode .controls input[type=range]{min-width:220px}.layout.focus-mode .observation{font-size:14px;padding:12px 14px}.experiment-info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}.experiment-info div{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 11px;font-size:12px;line-height:1.55}.experiment-info strong{display:block;color:var(--blue);margin-bottom:3px}.experiment-info span{color:var(--muted)}.layout.focus-mode .experiment-info{grid-template-columns:repeat(3,minmax(0,1fr));font-size:14px}.layout.focus-mode .experiment-info div{font-size:14px;padding:12px 14px}@media(max-width:680px){.layout.focus-mode .lab{padding:14px}.layout.focus-mode #scene{min-height:300px}.experiment-info,.layout.focus-mode .experiment-info{grid-template-columns:1fr}.lab-mode{display:none}}
+.demo #scene{touch-action:none;user-select:none;cursor:grab}.demo #scene:active{cursor:grabbing}
 </style>
 </head>
 <body>
@@ -234,6 +235,32 @@ function renderScore(){document.getElementById('scoreContent').innerHTML='<div c
 function renderFoundation(){document.getElementById('foundationContent').innerHTML='<div class="widebox"><h3>第一周：先把“数”站稳</h3><p>每天从 A01-02 数轴、A01-03 相反数、A01-04 绝对值开始。右侧小实验只改变一个数，练习说出“位置、方向、距离”。</p><button class="point" data-point="A01-02"><span class="code">A01-02</span><span class="pname">数轴</span></button><button class="point" data-point="A01-04"><span class="code">A01-04</span><span class="pname">绝对值</span></button></div><div class="widebox"><h3>第二周：把“式”读懂</h3><p>从 A03-01 用字母表示数 → A03-05 合并同类项 → A04-04 平方差公式。每次只做一行，先标出相同结构，再运算。</p><button class="point" data-point="A03-05"><span class="code">A03-05</span><span class="pname">合并同类项</span></button><button class="point" data-point="A04-04"><span class="code">A04-04</span><span class="pname">平方差公式</span></button></div><div class="widebox"><h3>第三周：从“图”到“关系”</h3><p>C01-03 角、C02-02 三角形内角和、F01-01 正比例函数。先看图形变化，再把一句话写成公式或定理。</p><button class="point" data-point="C02-02"><span class="code">C02-02</span><span class="pname">三角形内角和</span></button><button class="point" data-point="F01-01"><span class="code">F01-01</span><span class="pname">正比例函数 y=kx</span></button></div>';document.querySelectorAll('#foundationContent [data-point]').forEach(function(b){b.onclick=function(){selectPoint(b.dataset.point)}})}
 document.querySelectorAll('[data-grade]').forEach(function(b){b.onclick=function(){document.querySelectorAll('[data-grade]').forEach(function(x){x.classList.remove('active')});b.classList.add('active');state.grade=b.dataset.grade;renderView()}});document.querySelectorAll('[data-area]').forEach(function(b){b.onclick=function(){document.querySelectorAll('[data-area]').forEach(function(x){x.classList.remove('active')});b.classList.add('active');state.area=b.dataset.area;renderView()}});document.querySelectorAll('[data-view]').forEach(function(b){b.onclick=function(){document.querySelectorAll('[data-view]').forEach(function(x){x.classList.remove('active')});b.classList.add('active');state.view=b.dataset.view;renderView()}});document.getElementById('fontBtn').onclick=function(){state.font=state.font>=2?1:state.font+.25;document.documentElement.style.fontSize=(14*state.font)+'px';this.textContent='字体 ×'+state.font};
 renderView();selectPoint('A01-02',false);applyFocusMode();
+})();
+</script>
+<script>
+(function(){
+  var scene=document.getElementById('scene');
+  if(!scene)return;
+  var dragging=false;
+  function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+  function activeRange(){return document.getElementById('aRange')||document.getElementById('fxRange')||document.getElementById('cRange')||document.getElementById('dRange')||document.getElementById('eRange')}
+  function updateFromPointer(evt){
+    var el=activeRange(),rect=scene.getBoundingClientRect();
+    if(!el||!rect.width)return;
+    var ratio=clamp((evt.clientX-rect.left)/rect.width,0,1),value;
+    if(el.id==='aRange')value=-5+ratio*10;
+    else if(el.id==='fxRange')value=-4+ratio*8;
+    else if(el.id==='cRange')value=20+ratio*100;
+    else if(el.id==='dRange')value=10+Math.round(ratio*19)*10;
+    else value=ratio*6;
+    var step=Number(el.step)||1;
+    value=Math.round(value/step)*step;
+    el.value=clamp(value,Number(el.min),Number(el.max));
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  scene.addEventListener('pointerdown',function(evt){dragging=true;scene.setPointerCapture&&scene.setPointerCapture(evt.pointerId);updateFromPointer(evt)});
+  scene.addEventListener('pointermove',function(evt){if(dragging)updateFromPointer(evt)});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(function(name){scene.addEventListener(name,function(){dragging=false})});
 })();
 </script>
 </body>

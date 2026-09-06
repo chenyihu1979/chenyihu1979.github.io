@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>初中数学·圆的动态实验室 V3.0 Gold 自主学习版</title>
+<style>
+:root{
+  --bg:#f6f8fc;--panel:#fff;--text:#172033;--muted:#667085;--line:#dfe4ee;
+  --accent:#315fd6;--accent-soft:#eef3ff;--good:#177447;--warn:#a95a00;--bad:#b42318;
+  --violet:#7856b7;--orange:#d97706;--teal:#147d79;--fs:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,"Microsoft YaHei",sans-serif;font-size:var(--fs)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh}
+.topbar{
+  position:sticky;top:0;z-index:60;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:9px 14px
+}
+.tleft,.tright{display:flex;gap:8px;align-items:center}.tright{justify-content:flex-end}
+.brand{text-align:center;line-height:1.2}.brand small{display:block;color:var(--muted);font-size:.72rem}.brand b{font-size:1rem}
+.btn{border:1px solid var(--line);background:#fff;color:var(--text);padding:7px 10px;border-radius:9px}
+.btn:hover{border-color:#a8b3c7}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.good{border-color:#a8d9bd;background:#effaf4;color:var(--good)}
+.btn.warn{border-color:#e9c58f;background:#fff8ea;color:#8b4b00}.btn:disabled{opacity:.45;cursor:not-allowed}
+.layout{max-width:1500px;margin:auto;display:grid;grid-template-columns:265px minmax(0,1fr)}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:12px;position:sticky;top:56px;max-height:calc(100vh - 56px);overflow:auto;align-self:start}
+.sidebar h4{color:var(--muted);font-size:.78rem;margin:11px 8px 5px}
+.topic-btn{border:0;background:transparent;width:100%;text-align:left;display:flex;gap:8px;align-items:center;padding:8px;border-radius:9px;margin:2px 0;color:var(--text)}
+.topic-btn.active{background:var(--accent-soft);color:#254aa0;font-weight:700}.topic-btn:hover{background:#f4f6fa}
+.topic-dot{width:8px;height:8px;border-radius:50%;background:#c8d0dc;flex:0 0 auto}.topic-btn.done .topic-dot{background:var(--good)}
+.main{padding:14px;min-width:0}
+.head-card,.card{background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.head-card{padding:12px 14px;margin-bottom:12px}
+.head-grid{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}
+.progress{height:8px;border-radius:999px;background:#edf0f5;overflow:hidden;margin-top:7px}.progress>div{height:100%;background:var(--accent)}
+.mode-row,.stage-row{display:flex;flex-wrap:wrap;gap:6px}
+.mode,.stage{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px}
+.mode.active,.stage.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.stage.done{border-color:#a8d9bd;color:var(--good);background:#effaf4}
+.workspace{display:grid;grid-template-columns:minmax(300px,.76fr) minmax(460px,1.24fr);gap:13px}
+.card{padding:14px;min-width:0}
+.kicker{font-size:.76rem;color:var(--accent);font-weight:800;letter-spacing:.04em}.title{font-size:1.25rem;margin:.2em 0}.sub{color:var(--muted);font-size:.88rem}
+.goal{border-left:4px solid var(--accent);padding-left:10px;margin:11px 0 13px;line-height:1.55}
+.section-title{font-weight:800;margin-bottom:8px}
+.concept-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.concept-btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px;text-align:left;min-height:64px}
+.concept-btn strong{display:block;margin-bottom:2px}.concept-btn span{font-size:.8rem;color:var(--muted)}
+.concept-btn.active{border-color:var(--accent);background:var(--accent-soft)}
+.prereq{display:flex;flex-wrap:wrap;gap:6px}.pill{font-size:.76rem;border:1px solid var(--line);background:#f7f9fc;border-radius:999px;padding:5px 8px}
+.stage-panel{display:none}.stage-panel.active{display:block}
+.prompt{padding:10px;border-radius:11px;background:#fff8ea;border:1px solid #ecd3a2;line-height:1.55}
+.control{margin:12px 0}.control label{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px}.control input[type=range]{width:100%;accent-color:var(--accent)}
+.switchline{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:8px 0;padding:8px;border:1px solid var(--line);border-radius:10px}
+.livebox{border:1px solid var(--line);background:#f8fafc;border-radius:12px;padding:10px;margin-top:10px;line-height:1.55}
+.livebox b{color:var(--accent)}
+.contextbox{border:1px solid #b9d5ca;background:#f1faf5;border-radius:12px;padding:10px;margin-top:10px;line-height:1.55}
+.contextbox .lab{font-size:.72rem;color:var(--good);font-weight:800}
+.vars{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.var{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:8px}.var small{display:block;color:var(--muted);font-size:.7rem;margin-bottom:3px}
+.langs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.lang{border:1px solid var(--line);border-radius:10px;padding:9px;line-height:1.45}.lang small{display:block;color:var(--muted);margin-bottom:3px}
+.question{border:1px solid var(--line);border-radius:12px;padding:11px;margin-top:10px}.choice{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px;margin-top:7px}.choice.correct{background:#effaf4;border-color:#85c9a2}.choice.wrong{background:#fff1ef;border-color:#e9a49e}
+.feedback{min-height:24px;margin-top:7px}.goodtxt{color:var(--good)}.badtxt{color:var(--bad)}
+.proof-step{border-left:3px solid #d8deea;padding:7px 10px;margin:7px 0}.proof-step.active{border-left-color:var(--accent);background:#f7f9ff}
+.counter-card{border:1px dashed #d59d64;background:#fffaf2;border-radius:11px;padding:10px}
+.notearea{width:100%;min-height:72px;border:1px solid var(--line);border-radius:9px;padding:8px;resize:vertical}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.svgcard{position:sticky;top:70px;align-self:start}
+svg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:12px;background:#fbfcff}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}.legend span{font-size:.76rem;color:var(--muted)}
+.tip-dot{cursor:pointer}.tip-dot circle{fill:#ffb020;stroke:#fff;stroke-width:3}.tip-dot text{font-size:14px;font-weight:800;fill:#6c3c00;pointer-events:none}
+.glossary{position:fixed;right:14px;top:70px;z-index:90;width:min(390px,calc(100vw - 28px));max-height:78vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 14px 30px rgba(16,24,40,.15);display:none}
+.glossary.open{display:block}.glossary h3{margin-top:0}.glossary ul{padding-left:1.2em}
+.mapbox{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mapnode{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;font-size:.8rem}
+@media(max-width:1050px){
+ .layout{grid-template-columns:1fr}.sidebar{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line);display:flex;gap:5px;overflow:auto}.sidebar h4{display:none}.topic-btn{width:auto;white-space:nowrap;flex:0 0 auto}
+ .workspace{grid-template-columns:1fr}.svgcard{position:static}
+}
+@media(max-width:700px){
+ .topbar{grid-template-columns:1fr}.tleft,.tright{justify-content:center}.head-grid{grid-template-columns:1fr}.main{padding:9px}.concept-grid,.langs,.vars,.mapbox{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<header class="topbar">
+  <div class="tleft"><button class="btn" id="guideBtn">学习导读</button><button class="btn" id="mapBtn">知识地图</button><button class="btn" id="resetBtn">重置</button></div>
+  <div class="brand"><small>GEO-CIRCLE · GOLD LEARNING MODEL</small><b>初中数学 · 圆的动态实验室 V3.0</b></div>
+  <div class="tright"><button class="btn" id="fontMinus">A−</button><button class="btn" id="fontPlus">A+</button></div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <section class="head-card">
+      <div class="head-grid">
+        <div>
+          <div class="sub">学习进度：<span id="progressText"></span></div>
+          <div class="progress"><div id="progressBar"></div></div>
+        </div>
+        <div class="mode-row">
+          <button class="mode active" data-mode="guided">引导学习</button>
+          <button class="mode" data-mode="free">自由实验</button>
+          <button class="mode" data-mode="challenge">挑战模式</button>
+        </div>
+      </div>
+      <div class="stage-row" id="stageRow" style="margin-top:10px"></div>
+    </section>
+
+    <section class="workspace">
+      <div class="card">
+        <div class="kicker" id="topicCode"></div>
+        <h1 class="title" id="topicTitle"></h1>
+        <div class="sub" id="topicQuestion"></div>
+        <div class="goal"><b>本页学完，你应该能够：</b><div id="goalText"></div></div>
+
+        <div class="stage-panel active" data-stage="concept">
+          <div class="section-title">① 这是什么？先把图中的数学语言看懂</div>
+          <div class="concept-grid" id="conceptGrid"></div>
+          <div style="margin-top:10px">
+            <div class="section-title">学习前需要知道</div>
+            <div class="prereq" id="prereq"></div>
+          </div>
+          <div class="prompt" id="conceptPrompt" style="margin-top:10px"></div>
+        </div>
+
+        <div class="stage-panel" data-stage="predict">
+          <div class="section-title">② 先猜一猜</div>
+          <div class="prompt" id="predictPrompt"></div>
+          <div class="question" id="predictQuestion"></div>
+        </div>
+
+        <div class="stage-panel" data-stage="experiment">
+          <div class="section-title">③ 动手实验</div>
+          <div id="controls"></div>
+          <div class="contextbox"><div class="lab">实时学习提示</div><div id="contextHint"></div></div>
+          <div class="vars">
+            <div class="var"><small>你刚刚改变了</small><b id="changedVar">—</b></div>
+            <div class="var"><small>保持不变</small><b id="fixedVar">—</b></div>
+            <div class="var"><small>重点观察</small><b id="observeVar">—</b></div>
+          </div>
+          <div class="livebox"><small class="sub">实时测量 / 当前现象</small><div id="liveResult"></div></div>
+        </div>
+
+        <div class="stage-panel" data-stage="discover">
+          <div class="section-title">④ 我发现了什么？</div>
+          <div class="langs">
+            <div class="lang"><small>图形语言</small><div id="graphLang"></div></div>
+            <div class="lang"><small>数量/符号语言</small><div id="symbolLang"></div></div>
+            <div class="lang"><small>文字语言</small><div id="wordLang"></div></div>
+            <div class="lang"><small>适用条件</small><div id="conditionLang"></div></div>
+          </div>
+          <div class="prompt" id="discoverPrompt" style="margin-top:10px"></div>
+        </div>
+
+        <div class="stage-panel" data-stage="why">
+          <div class="section-title">⑤ 为什么成立？</div>
+          <div id="proofBox"></div>
+          <div class="toolbar"><button class="btn" id="proofPrev">上一步</button><button class="btn primary" id="proofNext">下一步</button></div>
+        </div>
+
+        <div class="stage-panel" data-stage="counter">
+          <div class="section-title">⑥ 条件能不能少？做一个反例</div>
+          <div class="counter-card" id="counterText"></div>
+          <div class="toolbar"><button class="btn warn" id="counterAction">进入反例实验</button></div>
+        </div>
+
+        <div class="stage-panel" data-stage="challenge">
+          <div class="section-title">⑦ 换一种情境，你还会吗？</div>
+          <div class="question">
+            <b id="challengeQ"></b>
+            <div id="challengeOpts"></div>
+            <div class="feedback" id="challengeFeedback"></div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="sub">用自己的话写下这节课最重要的发现：</div>
+            <textarea class="notearea" id="notes" placeholder="例如：垂径定理不是“经过圆心就平分弦”，还必须有垂直条件……"></textarea>
+          </div>
+          <div class="toolbar"><button class="btn good" id="markDone">我已理解</button><button class="btn primary" id="nextTopic">下一个知识点</button></div>
+        </div>
+      </div>
+
+      <div class="card svgcard">
+        <svg id="board" viewBox="0 0 780 520" aria-label="动态数学实验图"></svg>
+        <div class="legend">
+          <span>● 可操作/观察对象</span><span>①②③ 点击查看提示</span><span>建议：先预测，再动手</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<aside class="glossary" id="guideDrawer">
+  <h3>怎样用这个实验室自学</h3>
+  <ol>
+    <li>先认识页面中的数学名词，不懂就点概念卡。</li>
+    <li>不要马上拖动，先在“先猜一猜”里做预测。</li>
+    <li>一次只改变一个条件，观察哪些量跟着变、哪些不变。</li>
+    <li>看“实时学习提示”，它会根据你的操作自动变化。</li>
+    <li>实验发现规律后，再进入“为什么成立”。实验不是证明。</li>
+    <li>最后主动破坏条件、构造反例，检查自己是否真正理解。</li>
+  </ol>
+</aside>
+
+<aside class="glossary" id="mapDrawer">
+  <h3>圆的知识地图</h3>
+  <div class="mapbox">
+    <div class="mapnode"><b>认识圆</b><br>圆心、半径、直径、弦、弧</div>
+    <div class="mapnode"><b>圆内关系</b><br>垂径、弦、弧、圆心角</div>
+    <div class="mapnode"><b>圆周上的角</b><br>圆周角、直径与90°、内接四边形</div>
+    <div class="mapnode"><b>圆与外部对象</b><br>点、直线、切线</div>
+    <div class="mapnode"><b>圆与其他图形</b><br>三角形、正多边形</div>
+    <div class="mapnode"><b>圆的度量</b><br>周长、面积、弧长、扇形</div>
+  </div>
+</aside>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const NS='http://www.w3.org/2000/svg';
+const STAGES=[
+ ['concept','认识概念'],['predict','先预测'],['experiment','做实验'],['discover','发现规律'],['why','为什么'],['counter','找反例'],['challenge','挑战']
+];
+
+const topics=[
+{
+ code:'C01',group:'一、认识圆',title:'圆的定义与基本元素',question:'圆到底是什么？为什么圆周上的点离圆心一样远？',
+ goal:'说清圆心、半径、直径的含义；用“到定点的距离等于定长”描述圆。',
+ prereq:['点与线段','距离','相等'],
+ concepts:[
+  ['圆心 O','圆中固定不动的点 O。'],['半径 OP','连接圆心和圆上任意一点的线段。'],['直径 PQ','经过圆心、两端都在圆上的弦。'],['圆','到定点 O 的距离等于定长 r 的所有点组成的图形。']
+ ],
+ conceptPrompt:'先点一遍上面的概念卡，再看右侧图。注意：圆不是“一个弯曲的圈”这么简单，它有严格的距离条件。',
+ predict:{q:'如果点 P 沿圆周移动，OP 会怎样？',opts:['变长','变短','保持等于 r'],ans:2,why:'因为圆上的所有点到圆心的距离都等于半径 r。'},
+ renderer:'basic',
+ discover:{graph:'P 可以沿圆周移动，但始终在同一个圆上。',symbol:'OP = r；PQ = 2r',word:'圆上任意一点到圆心的距离都等于半径。',cond:'P 必须在圆上。'},
+ proof:['圆的定义本身规定：圆上的点到圆心距离等于 r。','因此无论 P 在圆周哪里，OP=r。','经过 O 且两端在圆上的 PQ 长度是 2r，所以它是直径。'],
+ counter:'把点 P 拖离圆周，OP 就不再等于 r。这样可以看出“P在圆上”是条件。',
+ challenge:{q:'若 OP=5，圆 O 的半径也是5，则 P 在哪里？',opts:['圆内','圆上','圆外'],ans:1,why:'OP=r，所以 P 在圆上。'}
+},
+{
+ code:'C02',group:'一、认识圆',title:'弦、直径与弧',question:'同一条线段为什么有时是“弦”，有时又叫“直径”？',
+ goal:'区分弦、直径、弧、半圆、优弧和劣弧；理解直径是特殊的弦。',
+ prereq:['圆上点','线段','圆周'],
+ concepts:[['弦 AB','圆上两点 A、B 连接得到的线段。'],['直径','经过圆心的弦。'],['弧 AB','A、B 两点之间的一段圆周。'],['半圆','直径两端把圆周分成的两条相等弧。']],
+ conceptPrompt:'重点看“直径”的定义：它不是另一类线段，而是满足“经过圆心”这个额外条件的弦。',
+ predict:{q:'所有直径都是弦吗？',opts:['是','不是'],ans:0,why:'直径满足弦的定义，只是又额外经过圆心。'},
+ renderer:'elements',
+ discover:{graph:'A、B 在圆上，AB 是弦；AB 若经过 O 就成为直径。',symbol:'A,B∈⊙O；若 O∈AB，则 AB 为直径。',word:'直径是经过圆心的特殊弦。',cond:'弦的两个端点必须都在圆上。'},
+ proof:['弦的定义只要求两个端点在圆上。','直径的两个端点也在圆上，所以直径首先是弦。','直径比普通弦多一个条件：经过圆心。'],
+ counter:'找一条不经过圆心的弦。它仍然是弦，但不能叫直径。',
+ challenge:{q:'一条线段两端都在圆上，但不经过圆心，它是什么？',opts:['半径','普通弦','直径'],ans:1,why:'它满足弦的定义，但没有满足直径“经过圆心”的条件。'}
+},
+{
+ code:'C03',group:'二、圆的性质',title:'垂径定理',question:'一条直径垂直于弦时，为什么会把这条弦平分？',
+ goal:'先理解“弦、直径、垂直、平分”的含义，再通过实验发现垂径定理，并能说明条件为什么不能缺少。',
+ prereq:['弦','直径','垂直','中点','全等三角形'],
+ concepts:[
+  ['弦 AB','A、B 都在圆上，所以线段 AB 是弦。'],
+  ['直径 CD','C、D 在圆上，而且 CD 经过圆心 O，所以 CD 是直径。'],
+  ['垂直 CD⊥AB','两条线相交成90°，图中用小直角表示。'],
+  ['平分弦','交点 M 把 AB 分成相等两段，即 AM=MB。']
+ ],
+ conceptPrompt:'“垂径”不是要学生背的一个孤立名词。真正的问题是：一条“垂直于弦的直径”会对这条弦产生什么作用？先把四个词都看懂。',
+ predict:{q:'如果 CD 是直径且 CD⊥AB，你猜 AM 与 MB 怎样？',opts:['AM>MB','AM=MB','AM<MB'],ans:1,why:'先保留这个猜想，进入实验后移动弦 AB 验证。'},
+ renderer:'chord',
+ discover:{graph:'CD 经过 O，并在 M 点垂直于弦 AB。',symbol:'CD⊥AB ⇒ AM=MB',word:'垂直于弦的直径平分这条弦。',cond:'CD 是直径；CD⊥AB。'},
+ proof:[
+  'OA=OB，因为 OA、OB 都是同一个圆的半径。',
+  'OM 是公共边，而且 ∠OMA=∠OMB=90°。',
+  '因此两个直角三角形 △OMA 与 △OMB 全等。',
+  '对应边相等，所以 AM=MB。这说明“平分弦”不是看图猜出来的。'
+ ],
+ counter:'进入反例实验后，把“垂直”条件破坏：让直径旋转成 85°、80°。观察“AM=MB”是否还能由条件保证。',
+ challenge:{q:'只知道一条直径经过弦的中点，能否直接说它一定垂直于弦？',opts:['任何情况下都能','需要结合垂径定理的逆向条件判断','绝对不能'],ans:1,why:'这里涉及垂径定理的逆向使用，不能只凭图形外观判断。'}
+},
+{
+ code:'C04',group:'二、圆的性质',title:'弧、弦、圆心角的关系',question:'在同一个圆里，圆心角变大时，对应的弦和弧会怎样？',
+ goal:'通过同圆中的对应关系，理解圆心角、弧和弦“相等关系可以互相转化”。',
+ prereq:['圆心角','弦','弧'],
+ concepts:[['圆心角 ∠AOB','顶点在圆心 O 的角。'],['所对弧 AB','圆心角两边与圆交点 A、B 之间的弧。'],['所对弦 AB','连接 A、B 的线段。'],['同圆/等圆','比较弧弦角关系时的重要前提。']],
+ conceptPrompt:'这节不要只盯一个量。你要同时观察三种表示：角、弧、弦。',
+ predict:{q:'同一个圆中，圆心角增大，所对弦一般怎样？',opts:['变长','变短','完全不变'],ans:0,why:'在0°到180°范围内，圆心角越大，对应弦越长。'},
+ renderer:'central',
+ discover:{graph:'同一个圆里，角张开越大，对应弧和弦也越大。',symbol:'∠AOB=∠COD ⇔ 弧AB=弧CD ⇔ AB=CD',word:'同圆或等圆中，相等的圆心角、弧和弦可以相互推出。',cond:'必须在同圆或等圆中比较。'},
+ proof:['圆具有旋转对称性。','相等圆心角通过旋转可重合。','对应端点重合，所以弧与弦也分别相等。'],
+ counter:'换成半径不同的两个圆，即使圆心角相同，弦长也未必相等。说明“同圆或等圆”不能删。',
+ challenge:{q:'在同圆中，AB=CD 可以推出什么？',opts:['∠AOB=∠COD','AB∥CD','两弦都为直径'],ans:0,why:'同圆中相等弦所对的圆心角相等。'}
+},
+{
+ code:'C05',group:'三、圆周角',title:'圆周角定理',question:'为什么圆周点 P 在同一段弧上移动时，∠APB 总是不变？',
+ goal:'理解圆周角的定义；发现同弧所对圆周角相等，并等于同弧所对圆心角的一半。',
+ prereq:['圆周角','圆心角','同弧'],
+ concepts:[['圆周角 ∠APB','顶点 P 在圆上，两边 PA、PB 与圆相交。'],['同弧 AB','比较圆周角时所共同对应的弧。'],['圆心角 ∠AOB','与弧 AB 对应的圆心角。'],['一半关系','圆周角=同弧所对圆心角的1/2。']],
+ conceptPrompt:'先分清“圆周角”和“圆心角”的顶点在哪里，这是理解本节的第一关。',
+ predict:{q:'固定 A、B，只让 P 沿同一段圆弧移动，∠APB 会怎样？',opts:['一直变化','保持不变','一定变成90°'],ans:1,why:'进入实验移动 P，验证你的猜想。'},
+ renderer:'inscribed',
+ discover:{graph:'P 沿同一段圆弧移动，∠APB 的开口看似改变位置，但角度不变。',symbol:'∠APB = 1/2∠AOB',word:'同弧所对圆周角相等，并等于圆心角的一半。',cond:'必须对应同一条弧。'},
+ proof:['连接 OP，可把图形分成等腰三角形。','利用等腰三角形底角关系和三角形内角和。','可推出圆周角等于同弧圆心角的一半。'],
+ counter:'把 P 移到弧 AB 的另一侧，所对应的弧发生变化，原来的角值关系需要重新判断。',
+ challenge:{q:'同弧 AB 所对圆心角是120°，圆周角是多少？',opts:['30°','60°','120°'],ans:1,why:'圆周角等于同弧圆心角的一半。'}
+},
+{
+ code:'C06',group:'三、圆周角',title:'直径所对的圆周角',question:'为什么直径所对的圆周角一定是90°？',
+ goal:'把“圆周角定理”和“180°圆心角”连接起来，理解直径与直角之间的双向联系。',
+ prereq:['直径','圆周角定理','平角180°'],
+ concepts:[['直径 AB','AB经过圆心 O。'],['半圆','直径所对的弧是180°。'],['圆周角 ∠APB','P在圆周上。'],['直角','90°的角。']],
+ conceptPrompt:'不要把“直径所对圆周角是90°”当成独立公式，它其实是圆周角定理的一个特殊情况。',
+ predict:{q:'若 AB 是直径，则 ∠AOB=180°，那么 ∠APB 应是多少？',opts:['45°','90°','180°'],ans:1,why:'圆周角是同弧圆心角的一半。'},
+ renderer:'diameterangle',
+ discover:{graph:'AB 是直径，A、O、B 共线。',symbol:'∠AOB=180° ⇒ ∠APB=90°',word:'直径所对的圆周角是直角。',cond:'AB 必须是直径，P 在圆上。'},
+ proof:['AB 是直径，所以 ∠AOB=180°。','圆周角等于同弧圆心角的一半。','因此 ∠APB=90°。'],
+ counter:'如果 AB 只是一条普通弦，不经过圆心，那么 ∠AOB 不等于180°，∠APB也不一定是90°。',
+ challenge:{q:'若圆周角 ∠APB=90°，则它所对的弦 AB 是？',opts:['半径','直径','任意弦'],ans:1,why:'90°圆周角所对的弦是直径。'}
+},
+{
+ code:'C07',group:'三、圆周角',title:'圆内接四边形',question:'四个顶点都在圆上时，对角为什么互补？',
+ goal:'理解圆内接四边形，并发现一组对角和为180°。',
+ prereq:['圆周角','对角','互补'],
+ concepts:[['圆内接四边形','四个顶点 A、B、C、D 都在同一圆上。'],['对角','不相邻的两个角，如∠A与∠C。'],['互补','两个角的和为180°。'],['对应弧','两个对角分别对应互补的两段圆弧。']],
+ conceptPrompt:'判断是不是圆内接四边形，关键不是“看起来像”，而是四个顶点是否都在同一个圆上。',
+ predict:{q:'圆内接四边形的一组对角之和是多少？',opts:['90°','180°','360°'],ans:1,why:'可由圆周角与整圆360°的关系推出。'},
+ renderer:'cyclic',
+ discover:{graph:'A、B、C、D始终在同一圆上。',symbol:'∠A+∠C=180°',word:'圆内接四边形的对角互补。',cond:'四个顶点都在同一圆上。'},
+ proof:['∠A 与 ∠C 分别等于各自所对圆心角的一半。','它们所对的两段弧合起来是一整圆360°。','所以 ∠A+∠C=180°。'],
+ counter:'把一个顶点拖离圆周，四边形不再是圆内接四边形，对角互补不再是必然结论。',
+ challenge:{q:'若圆内接四边形中 ∠A=72°，则 ∠C=?',opts:['72°','108°','288°'],ans:1,why:'对角互补，180°-72°=108°。'}
+},
+{
+ code:'C08',group:'四、位置关系',title:'点与圆的位置关系',question:'只看图容易误判，怎样用一个数量关系判断点在圆内、圆上还是圆外？',
+ goal:'用 OP=d 与 r 的大小关系判断点和圆的位置。',
+ prereq:['距离','大小比较','半径'],
+ concepts:[['d=OP','点P到圆心O的距离。'],['圆内','d<r。'],['圆上','d=r。'],['圆外','d>r。']],
+ conceptPrompt:'这节最重要的方法不是记三个结论，而是学会把“图形位置”转化成“数量比较”。',
+ predict:{q:'若 OP=1.2r，P 在哪里？',opts:['圆内','圆上','圆外'],ans:2,why:'1.2r>r，所以点在圆外。'},
+ renderer:'pointcircle',
+ discover:{graph:'P 从圆内穿过圆周再到圆外。',symbol:'d<r 内；d=r 上；d>r 外',word:'比较圆心距和半径即可判断点的位置。',cond:'d 指点P到圆心O的距离。'},
+ proof:['圆上的点满足 OP=r。','比r更短说明点尚未到达圆周，即在圆内。','比r更长说明越过圆周，即在圆外。'],
+ counter:'只凭“P看起来很靠近圆周”不能判断，必须比较d与r。',
+ challenge:{q:'r=5，OP=5，则 P 在哪里？',opts:['圆内','圆上','圆外'],ans:1,why:'OP=r。'}
+},
+{
+ code:'C09',group:'四、位置关系',title:'三点确定一个圆与外接圆',question:'为什么“不在同一直线上的三点”能确定一个圆？',
+ goal:'理解外心是三边垂直平分线交点；知道三点共线时不能确定有限半径的圆。',
+ prereq:['垂直平分线','到线段两端距离相等','三角形'],
+ concepts:[['外接圆','经过三角形三个顶点的圆。'],['外心 O','外接圆的圆心。'],['垂直平分线','到一条线段两端距离相等的点的轨迹。'],['三点不共线','确定有限圆的重要条件。']],
+ conceptPrompt:'圆心要同时满足 OA=OB=OC。想一想：哪里能保证 OA=OB？哪里又能保证 OA=OC？',
+ predict:{q:'三角形外心是什么线的交点？',opts:['三条角平分线','三边垂直平分线','三条中线'],ans:1,why:'垂直平分线上的点到线段两端距离相等。'},
+ renderer:'circum',
+ discover:{graph:'O随三角形形状改变而移动。',symbol:'OA=OB=OC',word:'三边垂直平分线交于外心 O，O 到三个顶点距离相等。',cond:'A、B、C 不在同一直线上。'},
+ proof:['AB垂直平分线上的点满足 OA=OB。','AC垂直平分线上的点满足 OA=OC。','两线交点同时满足 OA=OB=OC，因此能作唯一外接圆。'],
+ counter:'把C逐渐拖到AB所在直线上，外心越来越远；完全共线时不能得到有限半径的唯一圆。',
+ challenge:{q:'直角三角形的外心在哪里？',opts:['直角顶点','斜边中点','三角形内任意点'],ans:1,why:'直角三角形斜边是外接圆直径，外心是斜边中点。'}
+},
+{
+ code:'C10',group:'四、位置关系',title:'直线与圆的位置关系',question:'怎样不用“看图”就判断直线与圆相交、相切还是相离？',
+ goal:'比较圆心到直线距离 d 与半径 r，建立位置关系的数量判据。',
+ prereq:['点到直线距离','半径','大小比较'],
+ concepts:[['d','圆心O到直线l的垂直距离。'],['相交','两个公共点。'],['相切','一个公共点。'],['相离','没有公共点。']],
+ conceptPrompt:'判断位置关系时，真正有用的是“d和r比较”，而不是线画得离圆近不近。',
+ predict:{q:'若 d=r，直线和圆是什么关系？',opts:['相交','相切','相离'],ans:1,why:'这时直线与圆恰好只有一个公共点。'},
+ renderer:'linecircle',
+ discover:{graph:'直线靠近圆时，公共点数从0→1→2。',symbol:'d<r 相交；d=r 相切；d>r 相离',word:'比较圆心到直线的距离与半径即可判断。',cond:'d 必须是圆心到直线的垂直距离。'},
+ proof:['圆上点到O的距离等于r。','直线上离O最近的点距离是d。','比较最近距离d与r，就能判断直线能否进入圆内。'],
+ counter:'若把“d”误当成圆心到直线上任意一点的距离，判据就会失效。',
+ challenge:{q:'r=4，d=2.5，直线与圆？',opts:['相交','相切','相离'],ans:0,why:'d<r。'}
+},
+{
+ code:'C11',group:'五、切线',title:'切线的判定与性质',question:'为什么切点处的半径一定垂直于切线？',
+ goal:'理解切线、切点；掌握“切线垂直于过切点的半径”及其判定思路。',
+ prereq:['相切','垂直','半径'],
+ concepts:[['切线 l','与圆只有一个公共点的直线。'],['切点 T','切线与圆唯一的公共点。'],['半径 OT','连接圆心和切点。'],['垂直关系','OT⊥l。']],
+ conceptPrompt:'“只碰到圆一下”是直观图像，“OT⊥l”是精确的数学关系，两者要建立联系。',
+ predict:{q:'在切点T处，OT与切线l的夹角是多少？',opts:['45°','90°','180°'],ans:1,why:'这是切线的基本性质。'},
+ renderer:'tangent',
+ discover:{graph:'当l与OT成90°时，l恰好只在T处接触圆。',symbol:'l切⊙O于T ⇒ OT⊥l',word:'圆的切线垂直于经过切点的半径。',cond:'T 必须是切点。'},
+ proof:['若切线不垂直OT，则可在切线上找到离O更近的点。','该点距离会小于r，意味着直线进入圆内。','那就会产生两个交点，与“切线只有一个公共点”矛盾。'],
+ counter:'把90°调成89°，直线通常会穿入圆内，出现两个交点。',
+ challenge:{q:'已知T在圆上且OT⊥l，能否判定l为切线？',opts:['能','不能'],ans:0,why:'过半径外端且垂直于半径的直线可判定为圆的切线。'}
+},
+{
+ code:'C12',group:'五、切线',title:'切线长定理',question:'从同一个圆外点引出的两条切线，为什么一样长？',
+ goal:'通过移动圆外点P验证 PA=PB，并理解其全等结构。',
+ prereq:['切线','直角三角形','全等'],
+ concepts:[['切线段 PA、PB','从圆外点P到切点A、B的线段。'],['OA⊥PA','半径垂直于切线。'],['OB⊥PB','同理。'],['公共斜边 OP','两个直角三角形共享OP。']],
+ conceptPrompt:'这节表面是在比较两条线段，背后实际是两个直角三角形的全等。',
+ predict:{q:'移动P后，PA与PB怎样？',opts:['总相等','总不等','只有P在某处才相等'],ans:0,why:'进入实验验证。'},
+ renderer:'tangentlength',
+ discover:{graph:'P移动时两条切线段同时变长或变短。',symbol:'PA=PB',word:'从圆外一点引圆的两条切线长相等。',cond:'PA、PB都必须是真正的切线段。'},
+ proof:['OA=OB，都是半径。','∠OAP=∠OBP=90°。','OP是公共斜边，因此两个直角三角形全等。','对应边 PA=PB。'],
+ counter:'如果其中一条不是切线而是割线，就不能使用切线长定理。',
+ challenge:{q:'P为圆外一点，PA、PB为切线，PA=7，则PB=?',opts:['3.5','7','14'],ans:1,why:'切线长相等。'}
+},
+{
+ code:'C13',group:'六、三角形与圆',title:'三角形内切圆与内心',question:'为什么三条角平分线的交点到三边距离相等？',
+ goal:'理解内心、内切圆；会把“到三边距离相等”和“角平分线”联系起来。',
+ prereq:['角平分线','点到直线距离','三角形'],
+ concepts:[['内切圆','与三角形三边都相切的圆。'],['内心 I','三条角平分线交点。'],['内切圆半径','I到三边的垂直距离。'],['相切','每条边与圆只有一个公共点。']],
+ conceptPrompt:'外心看“到三个顶点距离”，内心看“到三条边距离”，不要混淆。',
+ predict:{q:'三角形内心是什么线的交点？',opts:['中线','角平分线','垂直平分线'],ans:1,why:'角平分线上的点到角两边距离相等。'},
+ renderer:'incircle',
+ discover:{graph:'I始终位于三条角平分线交点。',symbol:'d(I,AB)=d(I,BC)=d(I,CA)=r',word:'内心到三边距离相等，可作三角形内切圆。',cond:'距离指垂直距离。'},
+ proof:['角平分线上的点到角两边距离相等。','两个角平分线交点已到三边等距。','以该公共距离为半径即可作与三边都相切的圆。'],
+ counter:'若取三条中线交点（重心），它到三边距离一般不相等，不能作为内切圆圆心。',
+ challenge:{q:'内切圆半径等于什么？',opts:['内心到任一顶点距离','内心到任一边的垂直距离','最长边的一半'],ans:1,why:'内切圆与边相切，半径垂直于切边。'}
+},
+{
+ code:'C14',group:'七、正多边形',title:'正多边形与圆',question:'为什么正n边形的中心角一定是360°/n？',
+ goal:'理解正多边形中心、半径、中心角；观察n增大时多边形逐渐接近圆。',
+ prereq:['正多边形','圆心角','360°'],
+ concepts:[['正n边形','各边相等、各角相等的多边形。'],['中心','外接圆圆心。'],['中心角','相邻两个顶点对应的圆心角。'],['360°平均分','n个中心角总和为360°。']],
+ conceptPrompt:'把正多边形看成“把整圆平均分成n份”，很多公式就会自然出现。',
+ predict:{q:'正六边形中心角是多少？',opts:['30°','60°','90°'],ans:1,why:'360°÷6=60°。'},
+ renderer:'polygon',
+ discover:{graph:'n越大，多边形边界越接近圆周。',symbol:'中心角=360°/n',word:'正n边形把整圆平均分成n个相等中心角。',cond:'必须是正多边形。'},
+ proof:['正多边形各边对应的弦相等。','同圆中相等弦所对圆心角相等。','n个相等圆心角和为360°，所以每个是360°/n。'],
+ counter:'普通六边形不一定有6个相等中心角。',
+ challenge:{q:'正十边形中心角是多少？',opts:['18°','36°','72°'],ans:1,why:'360°÷10=36°。'}
+},
+{
+ code:'C15',group:'八、圆的计算',title:'圆周长',question:'半径改变时，圆周长按什么规律变化？',
+ goal:'理解C=2πr，发现周长与半径成正比。',
+ prereq:['圆周长','π','正比例'],
+ concepts:[['π','圆周长与直径的比值。'],['半径 r','圆的尺度参数。'],['直径 d','d=2r。'],['周长 C','C=πd=2πr。']],
+ conceptPrompt:'不要只记公式，重点看“r变几倍，C也变几倍”。',
+ predict:{q:'半径变成2倍，周长变成？',opts:['2倍','4倍','8倍'],ans:0,why:'C与r成正比。'},
+ renderer:'circumference',
+ discover:{graph:'圆放大时，周长按同样倍数放大。',symbol:'C=2πr',word:'圆周长与半径成正比。',cond:'π为常数。'},
+ proof:['d=2r。','C=πd。','代入得到C=2πr。'],
+ counter:'不要把“面积随半径变化规律”误套到周长上。',
+ challenge:{q:'r从3变为9，周长变为原来的几倍？',opts:['3倍','6倍','9倍'],ans:0,why:'9/3=3。'}
+},
+{
+ code:'C16',group:'八、圆的计算',title:'圆面积',question:'为什么圆面积是πr²，而不是2πr？',
+ goal:'理解扇形切分重排思想；发现面积与半径平方成正比。',
+ prereq:['长方形面积','圆周长','极限思想的直观理解'],
+ concepts:[['切分','把圆分成很多小扇形。'],['交错重排','把扇形一正一反排列。'],['近似长方形','份数越多，边界越接近直线。'],['面积公式','底≈πr，高≈r，所以S≈πr²。']],
+ conceptPrompt:'这是“为什么”特别重要的一页。把圆面积公式和圆周长公式混淆，是常见错误。',
+ predict:{q:'半径变为2倍，面积变为？',opts:['2倍','4倍','8倍'],ans:1,why:'面积与r²成正比。'},
+ renderer:'area',
+ discover:{graph:'切分越细，重排图形越接近长方形。',symbol:'S=πr²',word:'圆面积与半径平方成正比。',cond:'r是圆半径。'},
+ proof:['把圆分成很多等份小扇形。','交错排列后，底约为半个圆周长πr。','高约为r，所以面积约πr·r=πr²。'],
+ counter:'r变2倍时，如果你只让面积变2倍，就与实验测量不符；应变4倍。',
+ challenge:{q:'r=3，则面积是？',opts:['3π','6π','9π'],ans:2,why:'S=πr²=9π。'}
+},
+{
+ code:'C17',group:'八、圆的计算',title:'弧长',question:'一段弧长为什么是整个圆周长的 n/360？',
+ goal:'理解弧长与圆心角成正比，掌握l=(n/360)·2πr。',
+ prereq:['圆周长','圆心角','比例'],
+ concepts:[['圆心角 n°','决定弧占整圆的比例。'],['整圆360°','完整圆周对应360°。'],['比例 n/360','弧占圆周的比例。'],['弧长 l','l=(n/360)·2πr。']],
+ conceptPrompt:'把公式看成“整圆周长×所占比例”，会比死背容易得多。',
+ predict:{q:'同一圆中，180°所对弧长占整圆周长多少？',opts:['1/4','1/2','全部'],ans:1,why:'180/360=1/2。'},
+ renderer:'arc',
+ discover:{graph:'n增大，橙色弧按比例增长。',symbol:'l=(n/360)·2πr',word:'弧长是整圆周长的n/360。',cond:'n是该弧所对圆心角。'},
+ proof:['整圆360°对应周长2πr。','n°占整圆的n/360。','按比例取周长即可。'],
+ counter:'同样n°在不同半径的圆中，弧长不同，所以r也不能忽略。',
+ challenge:{q:'90°弧长占整圆周长多少？',opts:['1/2','1/3','1/4'],ans:2,why:'90/360=1/4。'}
+},
+{
+ code:'C18',group:'八、圆的计算',title:'扇形面积',question:'扇形面积与圆心角、半径分别有什么关系？',
+ goal:'理解S扇=(n/360)πr²；能判断n和r变化对面积的影响。',
+ prereq:['圆面积','圆心角','比例'],
+ concepts:[['扇形','由两条半径和它们所夹弧围成。'],['圆心角n°','决定扇形占整圆比例。'],['整圆面积πr²','比例计算的总量。'],['扇形面积','S=(n/360)πr²。']],
+ conceptPrompt:'固定r时看n；固定n时看r²。分开观察，规律更清楚。',
+ predict:{q:'固定圆心角，r变为2倍，扇形面积怎样？',opts:['2倍','4倍','8倍'],ans:1,why:'面积含r²。'},
+ renderer:'sector',
+ discover:{graph:'扇形随n增大而张开，随r增大而整体放大。',symbol:'S=(n/360)πr²',word:'扇形面积是整圆面积的n/360。',cond:'n为圆心角，r为半径。'},
+ proof:['整圆面积πr²对应360°。','n°占整圆n/360。','因此扇形面积=(n/360)πr²。'],
+ counter:'不要把弧长公式中的2πr直接拿来算面积。',
+ challenge:{q:'120°扇形面积占整圆面积多少？',opts:['1/2','1/3','1/4'],ans:1,why:'120/360=1/3。'}
+},
+{
+ code:'C19',group:'九、综合探究',title:'条件改变与反例',question:'一个定理的条件少一个字，还一定成立吗？',
+ goal:'学会主动删除、改变条件并构造反例；区分“看起来成立”和“必然成立”。',
+ prereq:['定理条件','结论','反例'],
+ concepts:[['条件','定理成立前必须满足的信息。'],['结论','由条件推出的结果。'],['反例','满足部分条件但让结论失败的例子。'],['严谨性','不能靠图形外观代替数学依据。']],
+ conceptPrompt:'这是整个圆单元最重要的数学思维训练之一：会用定理，更要知道什么时候不能用。',
+ predict:{q:'检验“某条件是否必要”的好方法是？',opts:['多背几遍定理','删掉条件并尝试找反例','把图画得更标准'],ans:1,why:'如果删掉某条件后能找到反例，就说明该条件不能随便省略。'},
+ renderer:'counter',
+ discover:{graph:'条件被破坏后，图形仍可能“看起来差不多”，但结论不再必然成立。',symbol:'条件集合 ⇒ 结论；删条件后可能不再⇒',word:'数学定理必须同时关注条件与结论。',cond:'任何定理都只能在其适用条件下使用。'},
+ proof:['实验可以帮助发现规律，但不能代替一般证明。','反例可以直接否定一个“对所有情况都成立”的错误命题。','所以数学学习既需要实验，也需要逻辑证明。'],
+ counter:'本页本身就是反例实验：让“经过圆心”保留，但取消“垂直”，观察垂径定理结论是否还能保证。',
+ challenge:{q:'发现5个例子都满足某规律，能否据此断言对所有情况都成立？',opts:['能','不能，还需要证明'],ans:1,why:'有限次实验不能替代一般证明。'}
+}
+];
+
+let idx=0, currentStage='concept', mode='guided', proofIndex=0, fontSize=16, lastChanged='还没有操作', counterMode=false;
+const done=new Set();
+let state={r:145,p:70,theta:110,d:65,n:6,tilt:90,x:535,lock:true};
+
+function resetState(){state={r:145,p:70,theta:110,d:65,n:6,tilt:90,x:535,lock:true};lastChanged='还没有操作';counterMode=false;proofIndex=0}
+function renderSidebar(){
+ const sb=$('#sidebar');sb.innerHTML='';let grp='';
+ topics.forEach((t,i)=>{
+  if(t.group!==grp){grp=t.group;const h=document.createElement('h4');h.textContent=grp;sb.appendChild(h)}
+  const b=document.createElement('button');b.className='topic-btn'+(i===idx?' active':'')+(done.has(i)?' done':'');b.innerHTML=`<span class="topic-dot"></span><span>${t.code} ${t.title}</span>`;b.onclick=()=>{idx=i;currentStage='concept';resetState();renderAll()};sb.appendChild(b)
+ });
+}
+function renderStages(){
+ const row=$('#stageRow');row.innerHTML='';
+ STAGES.forEach(([key,label],i)=>{
+  const b=document.createElement('button');b.className='stage'+(key===currentStage?' active':'');
+  if(STAGES.findIndex(x=>x[0]===currentStage)>i)b.classList.add('done');
+  b.textContent=(i+1)+'. '+label;b.onclick=()=>{currentStage=key;renderStage();};row.appendChild(b)
+ });
+}
+function renderStage(){
+ $$('.stage-panel').forEach(p=>p.classList.toggle('active',p.dataset.stage===currentStage));
+ renderStages();
+}
+function renderConcepts(t){
+ const g=$('#conceptGrid');g.innerHTML='';
+ t.concepts.forEach((c,i)=>{
+  const b=document.createElement('button');b.className='concept-btn';b.innerHTML=`<strong>${c[0]}</strong><span>${c[1]}</span>`;b.onclick=()=>{
+   $$('.concept-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');highlightConcept(i)
+  };g.appendChild(b)
+ });
+ $('#prereq').innerHTML=t.prereq.map(x=>`<span class="pill">${x}</span>`).join('');
+ $('#conceptPrompt').textContent=t.conceptPrompt;
+}
+function renderPredict(t){
+ const q=$('#predictQuestion');q.innerHTML=`<b>${t.predict.q}</b>`;
+ t.predict.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='choice';b.textContent=o;b.onclick=()=>{
+  [...q.querySelectorAll('.choice')].forEach(x=>x.classList.remove('correct','wrong'));
+  const arr=[...q.querySelectorAll('.choice')];arr[t.predict.ans].classList.add('correct');if(i!==t.predict.ans)b.classList.add('wrong');
+  let f=q.querySelector('.feedback');if(!f){f=document.createElement('div');f.className='feedback';q.appendChild(f)}
+  f.innerHTML=(i===t.predict.ans?'<span class="goodtxt">预测合理。</span> ':'<span class="badtxt">先保留疑问。</span> ')+t.predict.why;
+ };q.appendChild(b)});
+}
+function range(label,key,min,max,step,suffix=''){return `<div class="control"><label><span>${label}</span><b id="val_${key}">${state[key]}${suffix}</b></label><input type="range" data-key="${key}" data-suffix="${suffix}" min="${min}" max="${max}" step="${step}" value="${state[key]}"></div>`}
+function check(label,key){return `<div class="switchline"><span>${label}</span><input type="checkbox" data-check="${key}" ${state[key]?'checked':''}></div>`}
+function controlsFor(t){
+ const R=range;
+ switch(t.renderer){
+  case'basic':return R('移动圆周点 P','p',0,359,1,'°')+R('改变半径 r','r',80,175,5);
+  case'elements':return R('改变弦 AB 对应的圆心角','theta',30,180,5,'°');
+  case'chord':return R('上下移动弦 AB','d',0,125,5)+R('旋转直径 CD','tilt',75,105,1,'°');
+  case'central':return R('改变圆心角 ∠AOB','theta',20,170,5,'°');
+  case'inscribed':case'diameterangle':return R('沿圆周移动点 P','p',25,155,1,'°');
+  case'cyclic':return R('移动圆周点 B','p',20,145,1,'°');
+  case'pointcircle':return R('拖动点 P：改变 OP=d','d',20,220,5);
+  case'circum':return R('移动三角形顶点 C','d',25,160,5);
+  case'linecircle':return R('上下移动直线 l：改变 d','d',0,210,5);
+  case'tangent':return R('旋转直线 l 与 OT 的夹角','tilt',75,105,1,'°');
+  case'tangentlength':return R('左右移动圆外点 P','x',470,650,5);
+  case'incircle':return R('改变三角形顶点 C 的高度','d',75,180,5);
+  case'polygon':return R('改变边数 n','n',3,12,1);
+  case'circumference':return R('改变半径 r','r',60,175,5);
+  case'area':return R('改变半径 r','r',60,175,5)+R('切分份数','n',8,64,8);
+  case'arc':case'sector':return R('改变半径 r','r',70,170,5)+R('改变圆心角 n','theta',20,330,5,'°');
+  case'counter':return R('上下移动弦 AB','d',0,120,5)+R('破坏/恢复垂直条件','tilt',75,105,1,'°');
+ }
+}
+function bindControls(){
+ $$('[data-key]').forEach(el=>el.addEventListener('input',()=>{
+  state[el.dataset.key]=Number(el.value);lastChanged=el.previousElementSibling?.querySelector('span')?.textContent || el.dataset.key;
+  const v=$('#val_'+el.dataset.key);if(v)v.textContent=state[el.dataset.key]+(el.dataset.suffix||'');draw()
+ }));
+ $$('[data-check]').forEach(el=>el.addEventListener('change',()=>{state[el.dataset.check]=el.checked;lastChanged='实验条件';draw()}));
+}
+function renderDiscover(t){
+ $('#graphLang').textContent=t.discover.graph;$('#symbolLang').textContent=t.discover.symbol;$('#wordLang').textContent=t.discover.word;$('#conditionLang').textContent=t.discover.cond;
+ $('#discoverPrompt').innerHTML='<b>提醒：</b>实验帮助你发现规律，但“拖了几次都成立”并不等于数学证明。接下来进入“为什么成立”。';
+}
+function renderProof(t){
+ const box=$('#proofBox');box.innerHTML='';
+ t.proof.forEach((x,i)=>{const d=document.createElement('div');d.className='proof-step'+(i===proofIndex?' active':'');d.innerHTML=`<b>第${i+1}步：</b>${x}`;box.appendChild(d)});
+ $('#proofPrev').disabled=proofIndex===0;$('#proofNext').disabled=proofIndex===t.proof.length-1;
+}
+function renderChallenge(t){
+ $('#challengeQ').textContent=t.challenge.q;const box=$('#challengeOpts');box.innerHTML='';$('#challengeFeedback').textContent='';
+ t.challenge.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='choice';b.textContent=o;b.onclick=()=>{
+  [...box.children].forEach(x=>x.classList.remove('correct','wrong'));[...box.children][t.challenge.ans].classList.add('correct');if(i!==t.challenge.ans)b.classList.add('wrong');
+  $('#challengeFeedback').innerHTML=(i===t.challenge.ans?'<span class="goodtxt">正确。</span> ':'<span class="badtxt">再检查条件。</span> ')+t.challenge.why;
+ };box.appendChild(b)});
+}
+function renderAll(){
+ const t=topics[idx];renderSidebar();renderStages();
+ $('#topicCode').textContent=t.code;$('#topicTitle').textContent=t.title;$('#topicQuestion').textContent=t.question;$('#goalText').textContent=t.goal;
+ $('#progressText').textContent=`${idx+1} / ${topics.length}`;$('#progressBar').style.width=((idx+1)/topics.length*100)+'%';
+ renderConcepts(t);renderPredict(t);$('#controls').innerHTML=controlsFor(t);bindControls();renderDiscover(t);renderProof(t);
+ $('#counterText').textContent=t.counter;renderChallenge(t);$('#markDone').textContent=done.has(idx)?'已标记理解':'我已理解';
+ if(mode==='free'){currentStage='experiment';}
+ if(mode==='challenge'){currentStage='challenge';}
+ renderStage();draw();
+}
+$('#proofPrev').onclick=()=>{proofIndex=Math.max(0,proofIndex-1);renderProof(topics[idx])};
+$('#proofNext').onclick=()=>{proofIndex=Math.min(topics[idx].proof.length-1,proofIndex+1);renderProof(topics[idx])};
+$('#counterAction').onclick=()=>{counterMode=true;currentStage='experiment';if(topics[idx].renderer==='chord'||topics[idx].renderer==='counter'){state.tilt=84;lastChanged='垂直条件（已破坏）'}renderStage();draw()};
+$('#markDone').onclick=()=>{done.add(idx);renderSidebar();$('#markDone').textContent='已标记理解'};
+$('#nextTopic').onclick=()=>{if(idx<topics.length-1){idx++;currentStage='concept';resetState();renderAll()}};
+
+const board=$('#board'), cx=390,cy=255;
+function clear(){while(board.firstChild)board.removeChild(board.firstChild)}
+function el(n,a={},text=''){const e=document.createElementNS(NS,n);Object.entries(a).forEach(([k,v])=>e.setAttribute(k,String(v)));if(text)e.textContent=text;board.appendChild(e);return e}
+function line(x1,y1,x2,y2,a={}){return el('line',{x1,y1,x2,y2,stroke:'#172033','stroke-width':2,...a})}
+function circle(x,y,r,a={}){return el('circle',{cx:x,cy:y,r,fill:'none',stroke:'#172033','stroke-width':2,...a})}
+function txt(x,y,s,a={}){return el('text',{x,y,fill:'#172033','font-size':18,...a},s)}
+function dot(x,y,n,a={}){el('circle',{cx:x,cy:y,r:7,fill:'#315fd6',stroke:'#fff','stroke-width':3,...a});txt(x+10,y-10,n,{'font-weight':700})}
+function tip(x,y,n){const g=el('g',{class:'tip-dot'});const c=document.createElementNS(NS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',13);g.appendChild(c);const t=document.createElementNS(NS,'text');t.setAttribute('x',x);t.setAttribute('y',y+5);t.setAttribute('text-anchor','middle');t.textContent=n;g.appendChild(t);g.onclick=()=>{currentStage='concept';renderStage();const btn=$$('.concept-btn')[Math.min(n-1,$$('.concept-btn').length-1)];if(btn)btn.click()}}
+function P(a,r=state.r){const q=a*Math.PI/180;return{x:cx+r*Math.cos(q),y:cy-r*Math.sin(q)}}
+function base(r=state.r){circle(cx,cy,r);dot(cx,cy,'O',{fill:'#172033'})}
+function arcPath(r,a0,a1){const p0=P(a0,r),p1=P(a1,r),d=((a1-a0)%360+360)%360;return`M ${p0.x} ${p0.y} A ${r} ${r} 0 ${d>180?1:0} 0 ${p1.x} ${p1.y}`}
+function setLive(s){$('#liveResult').innerHTML=s}
+function setContext(changed,fixed,observe,hint){$('#changedVar').textContent=changed;$('#fixedVar').textContent=fixed;$('#observeVar').textContent=observe;$('#contextHint').innerHTML=hint}
+function highlightConcept(i){
+ const marks=$$('[data-concept]');
+ marks.forEach(m=>{m.setAttribute('opacity',m.dataset.concept==i?'1':'.25');if(m.tagName==='line'||m.tagName==='path'||m.tagName==='circle')m.setAttribute('stroke-width',m.dataset.concept==i?'6':m.getAttribute('data-base')||m.getAttribute('stroke-width')||2)});
+}
+function rightAngle(x,y,size=15){el('path',{d:`M ${x} ${y-size} L ${x+size} ${y-size} L ${x+size} ${y}`,fill:'none',stroke:'#d97706','stroke-width':3})}
+function draw(){
+ clear();const t=topics[idx],r=state.r;
+ if(t.renderer==='basic'){
+  base();const p=P(state.p),q=P(state.p+180);line(cx,cy,p.x,p.y,{stroke:'#315fd6','stroke-width':5,'data-concept':1,'data-base':5});line(q.x,q.y,p.x,p.y,{stroke:'#7856b7','stroke-width':3,'data-concept':2,'data-base':3});dot(p.x,p.y,'P');dot(q.x,q.y,'Q');tip(p.x-32,p.y+30,1);tip(cx+55,cy-18,2);tip(q.x+30,q.y-30,3);setLive(`OP=<b>${r}</b>=r；PQ=<b>${2*r}</b>=2r。`);setContext(lastChanged,'P始终在圆周上','OP是否变化',state.p!==70?'你移动了P，但OP仍等于r。这正是圆的定义在起作用。':'先移动P，看看OP会不会改变。');
+ }else if(t.renderer==='elements'){
+  base();const a=P(180-state.theta/2),b=P(180+state.theta/2);line(a.x,a.y,b.x,b.y,{stroke:'#7856b7','stroke-width':4,'data-concept':0,'data-base':4});dot(a.x,a.y,'A');dot(b.x,b.y,'B');el('path',{d:arcPath(r,180-state.theta/2,180+state.theta/2),fill:'none',stroke:'#d97706','stroke-width':8,'data-concept':2,'data-base':8});tip((a.x+b.x)/2,(a.y+b.y)/2-25,1);tip(cx-r-18,cy,2);tip(cx+12,cy-60,3);setLive(`AB是弦；当前圆心角=<b>${state.theta}°</b>。`);setContext(lastChanged,'A、B都在圆上','AB是否经过O',state.theta===180?'现在AB经过O，它已经从普通弦变成直径。':'继续把圆心角调到180°，看看弦会发生什么“身份变化”。');
+ }else if(t.renderer==='chord'||t.renderer==='counter'){
+  base();const d=Math.min(state.d,r-5),half=Math.sqrt(Math.max(0,r*r-d*d)),y=cy+d,a={x:cx-half,y},b={x:cx+half,y},m={x:cx,y};
+  line(a.x,a.y,b.x,b.y,{stroke:'#7856b7','stroke-width':4,'data-concept':0,'data-base':4});dot(a.x,a.y,'A');dot(b.x,b.y,'B');dot(m.x,m.y,'M',{fill:'#d97706'});const ang=state.tilt,rad=(ang-90)*Math.PI/180,dx=Math.sin(rad)*r,dy=Math.cos(rad)*r;
+  line(cx-dx,cy-dy,cx+dx,cy+dy,{stroke:'#315fd6','stroke-width':4,'data-concept':1,'data-base':4});if(Math.abs(ang-90)<.5)rightAngle(cx,y);
+  tip(cx+32,y-30,1);tip(cx-25,cy-75,2);tip(m.x+40,m.y+32,3);
+  const ok=Math.abs(ang-90)<.5;
+  setLive(ok?`CD是直径且CD⊥AB。AM=MB≈<b>${half.toFixed(1)}</b>。`:`当前夹角=<b>${ang}°</b>，垂直条件已被破坏；不能再由垂径定理保证AM=MB。`);
+  setContext(lastChanged,ok?'CD经过O且保持90°':'CD仍经过O，但不再垂直AB','AM与MB、定理条件',ok?(state.d!==65?'你移动了弦AB。虽然AM、MB的数值变了，但它们仍相等。试着再移动几次。':'先上下移动弦AB，观察AM和MB。'):'你刚刚破坏了“垂直”条件。这正是在做反例：定理条件少一个，结论就不能直接使用。');
+ }else if(t.renderer==='central'){
+  base();const a=P(-state.theta/2),b=P(state.theta/2);line(cx,cy,a.x,a.y,{stroke:'#315fd6','stroke-width':3});line(cx,cy,b.x,b.y,{stroke:'#315fd6','stroke-width':3});line(a.x,a.y,b.x,b.y,{stroke:'#7856b7','stroke-width':4});el('path',{d:arcPath(r,-state.theta/2,state.theta/2),fill:'none',stroke:'#d97706','stroke-width':8});dot(a.x,a.y,'A');dot(b.x,b.y,'B');const c=2*r*Math.sin(state.theta*Math.PI/360);setLive(`∠AOB=<b>${state.theta}°</b>；弦AB≈<b>${c.toFixed(1)}</b>。`);setContext(lastChanged,'半径r不变','圆心角、弦、弧如何联动',state.theta>110?'圆心角变大了，同时弦也变长。注意这只是同圆中的关系。':'拖大圆心角，观察弦和弧。');
+ }else if(t.renderer==='inscribed'||t.renderer==='diameterangle'){
+  base();const aa=t.renderer==='diameterangle'?180:200,bb=t.renderer==='diameterangle'?0:340,a=P(aa),b=P(bb),p=P(state.p);line(p.x,p.y,a.x,a.y,{stroke:'#7856b7','stroke-width':3});line(p.x,p.y,b.x,b.y,{stroke:'#7856b7','stroke-width':3});line(cx,cy,a.x,a.y,{stroke:'#315fd6'});line(cx,cy,b.x,b.y,{stroke:'#315fd6'});dot(a.x,a.y,'A');dot(b.x,b.y,'B');dot(p.x,p.y,'P',{fill:'#d97706'});const central=t.renderer==='diameterangle'?180:140;setLive(`∠AOB=<b>${central}°</b>；∠APB=<b>${central/2}°</b>。`);setContext(lastChanged,'A、B固定在圆上','移动P时∠APB是否变化',state.p!==70?'P的位置变了，但圆周角仍保持不变。实验现象支持你的猜想。':'移动P，先不要看结论，自己观察角度是否改变。');
+ }else if(t.renderer==='cyclic'){
+  base();const A=P(160),B=P(state.p),C=P(340),D=P(230);[A,B,C,D].forEach((q,i)=>dot(q.x,q.y,'ABCD'[i]));line(A.x,A.y,B.x,B.y);line(B.x,B.y,C.x,C.y);line(C.x,C.y,D.x,D.y);line(D.x,D.y,A.x,A.y);setLive(`<b>∠A+∠C=180°</b>；∠B+∠D=180°。`);setContext(lastChanged,'四点都在同一圆上','一组对角之和',state.p!==70?'B移动了，但四点仍共圆，所以对角互补关系保持。':'移动B，观察对角和。');
+ }else if(t.renderer==='pointcircle'){
+  base();const p={x:cx+state.d,y:cy};dot(p.x,p.y,'P',{fill:'#d97706'});line(cx,cy,p.x,p.y,{stroke:'#315fd6','stroke-width':4});let pos=state.d<r?'圆内':state.d===r?'圆上':'圆外';setLive(`d=OP=<b>${state.d}</b>，r=<b>${r}</b>，所以P在<b>${pos}</b>。`);setContext(lastChanged,'半径r不变','d与r的大小关系',state.d===r?'关键时刻：d正好等于r，P就在圆上。':state.d<r?'当前d<r，P还没有到达圆周。':'当前d>r，P已经越过圆周。');
+ }else if(t.renderer==='circum'){
+  const A={x:180,y:390},B={x:600,y:390},C={x:390,y:390-state.d};line(A.x,A.y,B.x,B.y);line(B.x,B.y,C.x,C.y);line(C.x,C.y,A.x,A.y);[A,B,C].forEach((q,i)=>dot(q.x,q.y,'ABC'[i]));const den=Math.max(state.d,1),Oy=390-(21000-state.d*state.d)/(2*den),O={x:390,y:Oy},R=Math.hypot(O.x-A.x,O.y-A.y);if(R<900){circle(O.x,O.y,R,{stroke:'#315fd6','stroke-width':3});dot(O.x,O.y,'O',{fill:'#172033'})}setLive(`外心满足 <b>OA=OB=OC</b>。C越接近AB，外心越远。`);setContext(lastChanged,'A、B固定','外心位置',state.d<50?'C已经很接近AB，外心快速远离。这在提醒你：三点不能共线。':'继续降低C，观察外心。');
+ }else if(t.renderer==='linecircle'){
+  base();const y=cy-state.d;line(70,y,710,y,{stroke:'#7856b7','stroke-width':4});line(cx,cy,cx,y,{stroke:'#315fd6','stroke-dasharray':'7 6'});let rel=state.d<r?'相交（2个公共点）':state.d===r?'相切（1个公共点）':'相离（0个公共点）';setLive(`d=<b>${state.d}</b>，r=<b>${r}</b> → <b>${rel}</b>。`);setContext(lastChanged,'半径r不变','公共点个数',Math.abs(state.d-r)<=5?'两个交点正在靠拢/重合。特别比较d和r。':state.d<r?'直线进入了圆内，所以会穿过圆形成两个交点。':'直线还没碰到圆。');
+ }else if(t.renderer==='tangent'){
+  base();const T={x:cx+r,y:cy};dot(T.x,T.y,'T',{fill:'#d97706'});line(cx,cy,T.x,T.y,{stroke:'#315fd6','stroke-width':4});const a=(state.tilt-90)*Math.PI/180,dx=210*Math.sin(a),dy=210*Math.cos(a);line(T.x-dx,T.y-dy,T.x+dx,T.y+dy,{stroke:'#7856b7','stroke-width':4});if(state.tilt===90)rightAngle(T.x,cy);setLive(`当前∠(OT,l)=<b>${state.tilt}°</b>。${state.tilt===90?'满足切线判定条件。':'不满足垂直条件，不能直接判定为切线。'}`);setContext(lastChanged,'T在圆上、OT是半径','90°条件',state.tilt===90?'现在直线与OT垂直，这是切线判定的关键状态。':'试着调回90°，再比较。');
+ }else if(t.renderer==='tangentlength'){
+  base();const P0={x:state.x,y:cy};dot(P0.x,P0.y,'P',{fill:'#d97706'});const d=P0.x-cx,alpha=Math.acos(r/d),A={x:cx+r*Math.cos(alpha),y:cy-r*Math.sin(alpha)},B={x:cx+r*Math.cos(alpha),y:cy+r*Math.sin(alpha)};line(P0.x,P0.y,A.x,A.y,{stroke:'#7856b7','stroke-width':4});line(P0.x,P0.y,B.x,B.y,{stroke:'#7856b7','stroke-width':4});dot(A.x,A.y,'A');dot(B.x,B.y,'B');const L=Math.sqrt(d*d-r*r);setLive(`PA=PB≈<b>${L.toFixed(1)}</b>。`);setContext(lastChanged,'PA、PB都保持为切线','两条切线段长度',state.x!==535?'P移动后长度变了，但PA和PB仍同步相等。':'移动P，比较两条切线段。');
+ }else if(t.renderer==='incircle'){
+  const A={x:160,y:405},B={x:620,y:405},C={x:400,y:405-state.d};line(A.x,A.y,B.x,B.y);line(B.x,B.y,C.x,C.y);line(C.x,C.y,A.x,A.y);[A,B,C].forEach((q,i)=>dot(q.x,q.y,'ABC'[i]));const a=Math.hypot(B.x-C.x,B.y-C.y),b=Math.hypot(A.x-C.x,A.y-C.y),c=Math.hypot(A.x-B.x,A.y-B.y),sum=a+b+c,I={x:(a*A.x+b*B.x+c*C.x)/sum,y:(a*A.y+b*B.y+c*C.y)/sum},area=Math.abs((B.x-A.x)*(C.y-A.y)-(B.y-A.y)*(C.x-A.x))/2,rr=2*area/sum;circle(I.x,I.y,rr,{stroke:'#315fd6','stroke-width':3});dot(I.x,I.y,'I',{fill:'#172033'});setLive(`内切圆半径≈<b>${rr.toFixed(1)}</b>；I到三边距离相等。`);setContext(lastChanged,'I始终为角平分线交点','I到三边距离',state.d!==65?'三角形变了，内切圆也跟着变，但I到三边仍等距。':'改变三角形形状。');
+ }else if(t.renderer==='polygon'){
+  base();const pts=[];for(let i=0;i<state.n;i++)pts.push(P(90-i*360/state.n));for(let i=0;i<pts.length;i++)line(pts[i].x,pts[i].y,pts[(i+1)%pts.length].x,pts[(i+1)%pts.length].y,{stroke:'#7856b7','stroke-width':3});setLive(`正${state.n}边形中心角=<b>${(360/state.n).toFixed(1)}°</b>。`);setContext(lastChanged,'外接圆半径不变','n与中心角、形状',state.n>6?'边数增多后，多边形越来越接近圆。':'增加n观察。');
+ }else if(t.renderer==='circumference'){
+  base();line(cx-r,cy,cx+r,cy,{stroke:'#7856b7','stroke-width':4});setLive(`r=<b>${r}</b>，C=2πr≈<b>${(2*Math.PI*r).toFixed(1)}</b>。`);setContext(lastChanged,'π不变','r的倍数与C的倍数',r!==145?`半径变为原状态的约 ${(r/145).toFixed(2)} 倍，周长也按同样倍数变化。`:'改变r，观察C。');
+ }else if(t.renderer==='area'){
+  base();for(let i=0;i<state.n;i++){const a=2*Math.PI*i/state.n;line(cx,cy,cx+r*Math.cos(a),cy+r*Math.sin(a),{stroke:'#d8dee8','stroke-width':1})}setLive(`S=πr²≈<b>${(Math.PI*r*r).toFixed(1)}</b>；切分${state.n}份。`);setContext(lastChanged,'π不变','r的倍数与面积倍数',r!==145?`半径约变为 ${(r/145).toFixed(2)} 倍，面积约变为 ${((r/145)**2).toFixed(2)} 倍。`:'改变r，观察面积不是按同样倍数变化，而是按平方变化。');
+ }else if(t.renderer==='arc'||t.renderer==='sector'){
+  base();const A=P(0),B=P(state.theta);if(t.renderer==='sector')el('path',{d:`M ${cx} ${cy} L ${A.x} ${A.y} A ${r} ${r} 0 ${state.theta>180?1:0} 0 ${B.x} ${B.y} Z`,fill:'#e7ecfb',stroke:'none'});line(cx,cy,A.x,A.y,{stroke:'#315fd6','stroke-width':3});line(cx,cy,B.x,B.y,{stroke:'#315fd6','stroke-width':3});el('path',{d:arcPath(r,0,state.theta),fill:'none',stroke:'#d97706','stroke-width':9,'stroke-linecap':'round'});const l=state.theta/360*2*Math.PI*r,s=state.theta/360*Math.PI*r*r;setLive(t.renderer==='arc'?`l≈<b>${l.toFixed(1)}</b>`:`扇形面积≈<b>${s.toFixed(1)}</b>`);setContext(lastChanged,'另一个参数若未动则保持不变',t.renderer==='arc'?'n/360 与弧长':'n/360 与面积',state.theta===180?'现在圆心角正好180°，对应半圆。':state.theta===90?'现在正好是整圆的1/4。':'继续改变圆心角，看所占比例。');
+ }else if(t.renderer==='counter'){
+  base();const d=Math.min(state.d,r-5),half=Math.sqrt(r*r-d*d),y=cy+d,a={x:cx-half,y},b={x:cx+half,y};line(a.x,a.y,b.x,b.y,{stroke:'#7856b7','stroke-width':4});dot(a.x,a.y,'A');dot(b.x,b.y,'B');const rad=(state.tilt-90)*Math.PI/180,dx=Math.sin(rad)*r,dy=Math.cos(rad)*r;line(cx-dx,cy-dy,cx+dx,cy+dy,{stroke:'#315fd6','stroke-width':4});setLive(`当前直径与弦夹角=<b>${state.tilt}°</b>。${state.tilt===90?'满足垂直条件。':'已破坏垂直条件。'}`);setContext(lastChanged,'直径仍经过O','删掉一个条件后结论是否还必然成立',state.tilt!==90?'很好，你已经构造了“少一个条件”的情境。现在不要因为图看起来接近，就继续套用原定理。':'把90°改成85°试试。');
+ }
+}
+function closeDrawers(){['#guideDrawer','#mapDrawer'].forEach(s=>$(s).classList.remove('open'))}
+$('#guideBtn').onclick=()=>{$('#guideDrawer').classList.toggle('open');$('#mapDrawer').classList.remove('open')};
+$('#mapBtn').onclick=()=>{$('#mapDrawer').classList.toggle('open');$('#guideDrawer').classList.remove('open')};
+$('#resetBtn').onclick=()=>{resetState();renderAll()};
+$('#fontPlus').onclick=()=>{fontSize=Math.min(21,fontSize+1);document.documentElement.style.setProperty('--fs',fontSize+'px')};
+$('#fontMinus').onclick=()=>{fontSize=Math.max(13,fontSize-1);document.documentElement.style.setProperty('--fs',fontSize+'px')};
+$$('.mode').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;$$('.mode').forEach(x=>x.classList.toggle('active',x===b));renderAll()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawers()});
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f9fc">
+<title>九年级数学动态实验室</title>
+<style>
+:root{--bg:#f6f8fb;--surface:#fff;--line:#dce3ec;--ink:#1e293b;--muted:#64748b;--blue:#2563eb;--blue-soft:#eff6ff;--green:#059669;--amber:#d97706;--violet:#7c3aed;--red:#dc2626;--topScale:1;--canvasScale:1.15;--sideScale:1;--bottomScale:1;--sideWidth:348px;--bottomHeight:76px}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{display:grid;grid-template-rows:minmax(0,1fr) 8px var(--bottomHeight);height:100vh;min-height:420px}
+.main{display:grid;grid-template-columns:minmax(420px,1fr) 8px var(--sideWidth);min-height:0}
+.canvasPane{position:relative;min-width:0;min-height:0;background:#fbfcfe;overflow:hidden}
+#scene{display:block;width:100%;height:100%;touch-action:none}
+.topbar{position:absolute;z-index:5;top:10px;left:12px;right:12px;display:flex;align-items:flex-start;gap:8px;pointer-events:none;font-size:calc(13px * var(--topScale))}
+.topbar>*{pointer-events:auto}
+.topbar a,.topbar button,.fit{border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.94);color:var(--muted);padding:7px 11px;text-decoration:none;white-space:nowrap;box-shadow:0 1px 2px #0f172a0b}
+.topbar a:hover,.topbar button:hover,.fit:hover{border-color:#93c5fd;color:var(--blue);background:#fff}
+.meta{display:flex;flex-direction:column;gap:2px;min-width:0;max-width:min(56vw,560px);padding:2px 6px;line-height:1.25;text-shadow:0 1px 0 #fff}
+.meta .id{font-size:.8em;color:#94a3b8}
+.meta .topic{font-size:1.12em;font-weight:750;overflow-wrap:anywhere}
+.fit{position:absolute;right:0;top:0}
+.sideSplitter,.bottomSplitter{background:#d8e0ea;z-index:10;position:relative}
+.sideSplitter{cursor:col-resize}
+.bottomSplitter{cursor:row-resize}
+.sideSplitter:hover,.sideSplitter.active,.bottomSplitter:hover,.bottomSplitter.active{background:var(--blue)}
+.sidebar{min-width:260px;min-height:0;overflow:auto;background:var(--surface);border-left:1px solid var(--line);padding:14px calc(14px * var(--sideScale));font-size:calc(14px * var(--sideScale));overflow-wrap:anywhere}
+.sideTitle{font-size:1.2em;font-weight:800;color:var(--blue);margin:0 0 4px}
+.sideHint{color:var(--muted);font-size:.86em;margin:0 0 12px;line-height:1.5}
+.groupTitle{font-size:.82em;font-weight:800;color:#94a3b8;letter-spacing:.06em;margin:16px 0 7px;padding-top:8px;border-top:1px solid #edf1f5}
+.topicButton{display:flex;width:100%;gap:7px;align-items:flex-start;text-align:left;border:1px solid transparent;background:#fff;border-radius:8px;padding:8px 9px;margin:4px 0;color:var(--ink);line-height:1.35}
+.topicButton:hover{background:var(--blue-soft);border-color:#bfdbfe}
+.topicButton.active{background:#eaf2ff;border-color:#93c5fd;color:#1d4ed8}
+.topicButton.done{border-right:4px solid #34d399}
+.topicCode{font-size:.78em;font-weight:800;color:#94a3b8;min-width:54px}
+.topicButton.active .topicCode{color:var(--blue)}
+.topicName{font-weight:650;flex:1}
+.section{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+.section h3{font-size:1em;margin:0 0 8px;color:#475569}
+.fact{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid #f1f5f9;line-height:1.35}
+.fact span:first-child{color:var(--muted)}
+.fact strong{text-align:right;color:#0f766e}
+.control{display:grid;grid-template-columns:82px minmax(0,1fr) 48px;gap:7px;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9}
+.control label{color:#475569}
+.control input[type=range]{width:100%;accent-color:var(--blue)}
+.control output{font-weight:750;text-align:right;color:var(--blue)}
+.miniButton,.stageButton,.answerButton,.actionButton{border:1px solid var(--line);border-radius:7px;background:#fff;padding:6px 9px;color:#475569}
+.miniButton:hover,.stageButton:hover,.answerButton:hover,.actionButton:hover{border-color:#93c5fd;color:var(--blue)}
+.controlActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.stageGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.stageButton{font-size:.86em;padding:7px 5px}
+.stageButton.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.guideBox{background:#f8fafc;border:1px solid #e7edf4;border-radius:9px;padding:10px 11px;line-height:1.65}
+.guideBox b{color:#334155}
+.tip{margin-top:9px;padding:8px 10px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;line-height:1.5}
+.challengeBox{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:9px;padding:10px;line-height:1.6}
+.answerRow{display:flex;gap:6px;margin-top:8px}
+.answerRow input{min-width:0;flex:1;border:1px solid #c4b5fd;border-radius:6px;padding:6px 8px}
+.success{color:#047857;font-weight:750}
+.footer{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 12px;background:#fff;border-top:1px solid var(--line);font-size:calc(12px * var(--bottomScale));overflow:auto}
+.footer button{border:1px solid var(--line);border-radius:7px;background:#fff;padding:6px 10px;color:#475569;white-space:nowrap}
+.footer button:hover{border-color:#93c5fd;color:var(--blue)}
+.footer button.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.footer .sep{color:#cbd5e1}
+.fontGroup{display:inline-flex;align-items:center;gap:3px;border-radius:6px;padding:2px 4px;border:1px solid #dbeafe;background:#f8fbff;color:#1d4ed8;white-space:nowrap}
+.fontGroup.side{border-color:#ddd6fe;background:#faf5ff;color:#7c3aed}
+.fontGroup.bottom{border-color:#bbf7d0;background:#f0fdf4;color:#15803d}
+.fontGroup.top{border-color:#fed7aa;background:#fff7ed;color:#c2410c}
+.fontGroup button{border:0!important;background:transparent!important;padding:2px 6px!important;color:inherit!important}
+.fontValue{min-width:30px;text-align:center;font-weight:700}
+#status{flex:1;min-width:140px;text-align:right;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modalBack{position:fixed;inset:0;background:#0f172a55;z-index:50;display:grid;place-items:center;padding:18px}
+.modal{width:min(680px,96vw);max-height:88vh;overflow:auto;background:#fff;border-radius:14px;padding:20px;box-shadow:0 18px 60px #0f172a33;line-height:1.7;font-size:calc(15px * var(--sideScale))}
+.modal h2{margin:0 0 10px;color:var(--blue)}
+.modal .close{float:right;border:0;background:#eff6ff;color:var(--blue);border-radius:6px;padding:4px 9px}
+.pulse{animation:pulse .7s ease}
+@keyframes pulse{0%{opacity:.55}100%{opacity:1}}
+@media(max-width:980px){.main{grid-template-columns:minmax(360px,1fr) 8px var(--sideWidth)}.sidebar{padding:10px}.footer{padding-left:7px;padding-right:7px}.fontGroup{gap:0}}
+@media(max-width:760px){.app{min-height:560px}.main{grid-template-columns:1fr;grid-template-rows:minmax(340px,1fr) 8px minmax(210px,34vh)}.sideSplitter{display:none}.sidebar{border-left:0;border-top:1px solid var(--line);min-width:0}.bottomSplitter{display:block}.topbar{left:7px;right:7px;top:7px;gap:4px}.topbar a,.topbar button{padding:6px 8px}.meta{max-width:55vw}.footer{font-size:calc(11px * var(--bottomScale))}.footer .sep{display:none}}
+@media(max-width:520px){.topbar a,.topbar button{font-size:.9em;padding:5px 6px}.meta .topic{font-size:1em}.fit{right:0}.footer #status{display:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+'use strict';
+var stages=[
+  {key:'guide',name:'总览',icon:'📘'},
+  {key:'predict',name:'预测',icon:'🔮'},
+  {key:'experiment',name:'实验',icon:'🧪'},
+  {key:'discover',name:'发现',icon:'⭐'},
+  {key:'explain',name:'解释',icon:'💡'},
+  {key:'counter',name:'反例',icon:'⚠️'},
+  {key:'challenge',name:'挑战',icon:'🎯'}
+];
+var topics=[
+ {code:'F04-01',group:'二次函数',title:'二次函数 y=ax²：开口与宽窄',renderer:'parabola',goal:'只改变 a，观察开口方向与收拢程度。',formula:'y = a(x−h)² + k',params:{a:1,h:0,k:0},concept:'a 的符号决定开口方向，|a|决定图像的“胖瘦”；顶点是 (h,k)，对称轴是 x=h。',predict:['a 从 1 变为 −1，开口会怎样？','|a| 变大时，图像会更靠近对称轴还是更展开？'],answers:['向下','更靠近'],why:'同一个 x 离对称轴的距离为 d 时，y−k=a·d²；a 改变符号会翻转，绝对值变大则纵向变化更快。',counter:'a=0 时图像变成直线 y=k，不再是二次函数。',challenge:'将顶点移到 (2,−1)，并让图像开口向下。你需要怎样设置 a、h、k？',target:'a<0，h=2，k=−1',exam:'利用顶点式读出顶点、对称轴和最值。'},
+ {code:'F04-02',group:'二次函数',title:'顶点式：平移与顶点',renderer:'parabola',goal:'拖动 h、k，观察顶点和对称轴同步移动。',formula:'y = a(x−h)² + k',params:{a:1,h:2,k:-1},concept:'h 控制左右平移，k 控制上下平移；顶点为 (h,k)，对称轴为 x=h。',predict:['h 增大，顶点向哪边移动？','k 减小，最低点会怎样？'],answers:['右','下降'],why:'令 x=h 时，平方项为 0，所以 y=k；这直接给出顶点坐标。',counter:'不要把 (x−h) 中的 h 读成顶点的横坐标 −h。',challenge:'让顶点为 (−2,3)，且开口向上。',target:'a>0，h=−2，k=3',exam:'由顶点坐标写出函数关系，并判断最值。'},
+ {code:'F04-03',group:'二次函数',title:'一般式：参数 a、b、c',renderer:'general',goal:'改变一般式的参数，比较 y 轴截距、顶点和对称轴。',formula:'y = ax² + bx + c',params:{a:1,b:-2,c:-3},concept:'c 是 y 轴截距；对称轴为 x=−b/(2a)，顶点纵坐标由代入函数求得。',predict:['只改变 c，哪一个量一定会改变？','a、b 不变，只增大 c，两条图像有什么关系？'],answers:['y轴截距','竖直平移'],why:'x=0 时 y=c；加上常数只会让每个函数值同时加同一个数。',counter:'对称轴不是 x=−b/a，而是 x=−b/(2a)。',challenge:'将函数设置为 y=x²−4x+3，使它与 x 轴有两个交点。',target:'a=1，b=−4，c=3',exam:'结合对称轴、顶点与判别式综合读图。'},
+ {code:'F04-04',group:'二次函数',title:'零点与判别式 Δ',renderer:'roots',goal:'改变 a、b、c，观察抛物线与 x 轴交点个数。',formula:'Δ=b²−4ac',params:{a:1,b:0,c:-2},concept:'Δ>0 有两个不相等实根，Δ=0 有一个实根，Δ<0 没有实根；图像上对应 2、1、0 个 x 轴交点。',predict:['把 c 从 −2 调到 0，交点个数会怎样？','Δ<0 时抛物线会穿过 x 轴吗？'],answers:['从2个变为1个','不会'],why:'一元二次方程的根就是函数图像与 x 轴交点的横坐标。',counter:'Δ=0 不是“没有根”，而是有两个相等的根。',challenge:'调出“只有一个 x 轴交点”的状态。',target:'使 Δ=0',exam:'由交点个数反推参数范围或判别式。'},
+ {code:'F04-05',group:'二次函数',title:'最值与实际建模',renderer:'model',goal:'把抛物线的顶点看成实际问题中的最大值或最小值。',formula:'顶点 = 最值位置',params:{a:-0.18,h:5,k:4},concept:'开口向上时顶点给最小值，开口向下时顶点给最大值；实际问题还要检查自变量取值范围。',predict:['a<0 时顶点表示最大值还是最小值？','如果实际 x 只能在 0 到 8 之间，顶点在区间外还能直接用吗？'],answers:['最大值','不能'],why:'抛物线的顶点是函数在全部实数范围内的极值；实际题还要比较区间端点。',counter:'顶点是数学最值，题目的定义域可能会排除顶点。',challenge:'把模型设为“x=5 时达到最高 4”，并判断最高点。',target:'h=5，k=4，a<0',exam:'利润、面积、拱桥和投掷问题中的最值。'},
+ {code:'F03-01',group:'反比例函数',title:'反比例函数 y=k/x：象限',renderer:'reciprocal',goal:'改变 k 的正负和大小，观察双曲线所在象限。',formula:'xy = k（x≠0）',params:{k:4,x:2},concept:'k>0 时图像在第一、三象限；k<0 时在第二、四象限；同一支上 y 随 x 变化的方向相反。',predict:['k 从正变负，图像会转到哪些象限？','x 变大时，同一支上的 y 会变大还是变小？'],answers:['二、四','变小'],why:'xy=k 的符号决定 x、y 同号还是异号；x 增大时 y=k/x 的绝对值减小。',counter:'x=0 不在定义域，双曲线不会穿过坐标轴。',challenge:'让动点位于第二象限，并保持 xy=−4。',target:'k<0，x<0',exam:'象限、增减性、反比例图像与一次函数交点。'},
+ {code:'F03-02',group:'反比例函数',title:'k 的几何意义：矩形面积',renderer:'reciprocal',goal:'拖动点 P，验证坐标轴与双曲线围成矩形的面积。',formula:'S矩形 = |x·y| = |k|',params:{k:4,x:2},concept:'点 P(x,y) 在 y=k/x 上时，x·y=k；矩形面积取正，因此 S=|k|。',predict:['P 沿同一支移动，矩形面积会改变吗？','k=-6 时，面积能是 −6 吗？'],answers:['不会','不能'],why:'P 的每一组坐标都满足 xy=k，横边与竖边乘积恒定；面积必须取正。',counter:'有向积 xy 可以为负，但几何面积不会为负。',challenge:'把面积调为 6，并让 P 在第四象限。',target:'|k|=6，x>0，y<0',exam:'利用面积、坐标和 k 的关系反求参数。'},
+ {code:'C03-02',group:'相似与三角函数',title:'相似三角形：对应边成比例',renderer:'similar',goal:'改变相似比，观察对应边和面积如何变化。',formula:'对应边比相等；面积比 = 相似比²',params:{scale:.55},concept:'两三角形相似时，对应角相等、对应边成比例；若边长比为 m，面积比为 m²。',predict:['相似比从 0.5 变为 1，图形会怎样？','边长比为 2，面积比是多少？'],answers:['变得一样大','4'],why:'底和高都乘以 m，面积 = 底×高÷2 就会乘以 m²。',counter:'边长比与面积比不是同一个数。',challenge:'将小三角形面积比调到大三角形的 1/4。',target:'相似比 m=0.5',exam:'相似模型、比例线段、测高和面积比。'},
+ {code:'C03-06',group:'相似与三角函数',title:'锐角三角函数：sin、cos、tan',renderer:'trig',goal:'改变锐角，观察三条边和三角函数值。',formula:'sinθ=对/斜，cosθ=邻/斜，tanθ=对/邻',params:{angle:35,hyp:8},concept:'在同一个锐角中，三角函数值只由角度决定，与三角形大小无关。',predict:['角度变大，sinθ 会怎样？','斜边扩大但角度不变，tanθ 会改变吗？'],answers:['变大','不会'],why:'相似直角三角形的对应边同比例变化，比值保持不变。',counter:'tanθ 不是“对边÷斜边”，而是对边÷邻边。',challenge:'将 θ 调为 30°，观察 sinθ≈0.5。',target:'angle=30°',exam:'用三角函数解决高度、距离和坡度问题。'},
+ {code:'C03-07',group:'相似与三角函数',title:'解直角三角形：由角求高',renderer:'trig',goal:'把测得的角度和距离转化为高度。',formula:'高 = 距离 × tanθ',params:{angle:40,hyp:7},concept:'先辨认已知边相对哪个角，再选择 sin、cos 或 tan；单位要统一。',predict:['同样的水平距离，仰角变大，高度会怎样？','知道斜边和角，求对边应使用哪个比值？'],answers:['变大','sin'],why:'tanθ=对边/邻边，所以对边=邻边×tanθ；这是测高模型。',counter:'角度必须是题目中对应的锐角，不能随意换成另一个角。',challenge:'用 10m 水平距离和 45° 仰角估计高度。',target:'高 = 10m',exam:'仰角俯角、坡度、建筑测高。'},
+ {code:'D03-02',group:'概率与统计',title:'等可能事件：理论概率',renderer:'probability',goal:'调整有利结果数与总结果数，理解概率是比例。',formula:'P(A)=有利结果数/所有等可能结果数',params:{fav:1,total:2},concept:'概率在 0 和 1 之间；必然事件概率为 1，不可能事件概率为 0。',predict:['有利结果数增加，概率一定增大吗？','总结果数为 6，有利结果为 2，概率是多少？'],answers:['在总数不变时','1/3'],why:'概率是有利结果在所有等可能结果中的占比。',counter:'只有在所有基本结果等可能时，才能直接用数数法。',challenge:'设置成掷骰子得到偶数的模型：3 个有利结果、6 个总结果。',target:'3/6=1/2',exam:'列表法、树状图、等可能事件。'},
+ {code:'D03-06',group:'概率与统计',title:'频率估计概率：重复试验',renderer:'probability',goal:'重复抽样，观察频率在概率附近波动。',formula:'频率 = 事件发生次数/试验次数',params:{fav:1,total:2},concept:'试验次数越多，频率通常越接近理论概率，但每次结果仍有随机波动。',predict:['只做 2 次试验，频率会稳定吗？','点击“重复 50 次”，频率一定恰好等于概率吗？'],answers:['不会','不一定'],why:'随机性使频率上下波动；大量重复试验体现稳定性。',counter:'频率接近概率不是说每一小组试验都相等。',challenge:'连续进行多组 50 次试验，比较频率的变化。',target:'观察频率逐渐稳定',exam:'用频率估计概率、解释实验数据。'},
+ {code:'D02-01',group:'概率与统计',title:'数据特征：平均数、中位数、极差',renderer:'stats',goal:'改变一个数据，比较平均数、中位数和极差的敏感程度。',formula:'平均数=总和/个数；极差=最大值−最小值',params:{last:12},concept:'平均数会被极端值拉动；中位数受单个极端值影响较小；极差只看两端。',predict:['把一个数据调得很大，平均数会怎样？','排序后中间位置的数叫做什么？'],answers:['增大','中位数'],why:'平均数把总和平均分配，任何一个数据变化都会影响总和；中位数看排序位置。',counter:'中位数不是“所有数相加再除以个数”。',challenge:'让极差尽可能大，同时观察平均数变化。',target:'拖动最后一个数据点',exam:'选择恰当统计量描述一组数据。'},
+ {code:'C06-06',group:'图形与视图',title:'投影与三视图：从立体到平面',renderer:'projection',goal:'改变立体图的高度与深度，比较主视图、俯视图和左视图。',formula:'三视图：主视、俯视、左视',params:{height:3,depth:2},concept:'三视图要从同一物体观察；主视图看长和高，俯视图看长和宽，左视图看宽和高。',predict:['增加高度，哪个视图的高度会改变？','俯视图主要反映哪两个方向？'],answers:['主视图和左视图','长和宽'],why:'每个视图保留观察方向上的两个尺寸，第三个方向被投影重合。',counter:'三视图的位置和尺寸对应有规则，不能把三个图随意拼接。',challenge:'调整积木柱的高度，找出只改变主视图与左视图的效果。',target:'改变 height',exam:'由三视图判断几何体、求表面积和体积。'},
+ {code:'A06-05',group:'方程与数列',title:'一元二次方程：根与系数',renderer:'roots',goal:'观察两个根的和与积如何对应 a、b、c。',formula:'x₁+x₂=−b/a；x₁x₂=c/a',params:{a:1,b:-5,c:6},concept:'当 Δ≥0 时，根的和与积可以不求根直接由系数得到。',predict:['a、b、c 同时乘 2，根会改变吗？','只改变 c，根的积会怎样？'],answers:['不会','随 c/a 改变'],why:'把 (x−x₁)(x−x₂) 展开，就得到 x²−(x₁+x₂)x+x₁x₂。',counter:'韦达定理要先确认方程是一元二次方程，且关注实根条件。',challenge:'设置两根为 2 和 3。',target:'a=1，b=−5，c=6',exam:'不解方程求根的和、积，或反求参数。'},
+ {code:'F05-01',group:'综合建模',title:'一次函数与二次函数交点',renderer:'intersect',goal:'让一条直线与抛物线相交，理解交点就是方程组的解。',formula:'y₁=y₂ ⇔ 图像交点',params:{lineK:1,lineB:0,a:.25,h:0,k:0},concept:'两个函数图像的公共点，同时满足两个函数关系；联立方程就是求交点。',predict:['把直线向上平移，交点个数一定不变吗？','交点的横坐标代表什么？'],answers:['不一定','方程组的解的 x 值'],why:'交点既在直线也在抛物线上，所以它的坐标同时满足两个表达式。',counter:'交点个数要结合图像位置和定义域判断，不能只看一条曲线。',challenge:'调节直线，使它与抛物线相切。',target:'只有一个交点',exam:'函数交点、参数范围、几何最值综合。'},
+ {code:'E01-10',group:'综合建模',title:'动点与面积变化',renderer:'area',goal:'拖动动点，观察三角形面积随底边位置的变化。',formula:'S=底×高÷2',params:{x:4},concept:'当高固定时，面积与底边长度成正比；当底边固定时，面积与高成正比。',predict:['底边增大一倍、高不变，面积怎样？','点回到端点，三角形面积是多少？'],answers:['增大一倍','0'],why:'面积公式直接说明了底和高的乘积关系；端点处底边退化。',counter:'面积为 0 不代表没有点，而是图形退化成线段。',challenge:'将面积调为底边最大面积的一半。',target:'x=4（默认中点）',exam:'动点面积函数、最值和分类讨论。'}
+];
+var state={topic:0,stage:'guide',mode:'FREE',answer:null,done:{},trials:0,hits:0,params:{},dragging:false};
+var font={top:1,canvas:1.15,side:1,bottom:1};
+var app,scene,sidebar,status,main,bottom,sideSplitter,bottomSplitter;
+function $(s){return document.querySelector(s)}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function fmt(n,d){if(!Number.isFinite(n))return '—';var p=Math.pow(10,d||2),x=Math.round(n*p)/p;return Object.is(x,-0)?'0':String(x)}
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function current(){return topics[state.topic]}
+function applyFonts(){document.documentElement.style.setProperty('--topScale',font.top);document.documentElement.style.setProperty('--canvasScale',font.canvas);document.documentElement.style.setProperty('--sideScale',font.side);document.documentElement.style.setProperty('--bottomScale',font.bottom);['top','canvas','side','bottom'].forEach(function(k){var el=$('#font-'+k);if(el)el.textContent=fmt(font[k],2)+'×'})}
+function shell(){
+ app.innerHTML='<div class="app"><main class="main" id="main"><section class="canvasPane" id="canvasPane"><svg id="scene" viewBox="0 0 900 560" aria-label="动态数学图形"></svg><div class="topbar"><a href="../index.html" title="返回数学实验室首页">🏠 返回</a><button id="guideBtn">📘 导读</button><div class="meta"><div class="id" id="metaId"></div><div class="topic" id="metaTopic"></div></div><button class="fit" id="fitBtn">🎯 图形居中</button></div></section><div class="sideSplitter" id="sideSplitter" title="左右拖动调整栏宽"></div><aside class="sidebar" id="sidebar"></aside></main><div class="bottomSplitter" id="bottomSplitter" title="上下拖动调整工具栏高度"></div><footer class="footer"><button id="resetBtn">⟳ 重置</button><span class="sep">|</span><button class="mode active" data-mode="FREE">自由</button><button class="mode" data-mode="PREDICT">预测</button><button class="mode" data-mode="CHALLENGE">挑战</button><span class="sep">|</span><button id="tipBtn">💡 提示</button><button id="helpBtn">❓ 帮助</button><span class="sep">|</span><span class="fontGroup top">顶<button data-font="top" data-step="-1">A−</button><span class="fontValue" id="font-top">1×</span><button data-font="top" data-step="1">A+</button></span><span class="fontGroup">图<button data-font="canvas" data-step="-1">A−</button><span class="fontValue" id="font-canvas">1.15×</span><button data-font="canvas" data-step="1">A+</button></span><span class="fontGroup side">栏<button data-font="side" data-step="-1">A−</button><span class="fontValue" id="font-side">1×</span><button data-font="side" data-step="1">A+</button></span><span class="fontGroup bottom">底<button data-font="bottom" data-step="-1">A−</button><span class="fontValue" id="font-bottom">1×</span><button data-font="bottom" data-step="1">A+</button></span><button id="fontReset">↺字</button><span id="status">欢迎进入九年级数学动态实验室</span></footer></div>';
+ scene=$('#scene');sidebar=$('#sidebar');status=$('#status');main=$('#main');bottom=$('.footer');sideSplitter=$('#sideSplitter');bottomSplitter=$('#bottomSplitter');
+ $('#guideBtn').onclick=showGuide;$('#fitBtn').onclick=fit;$('#resetBtn').onclick=resetTopic;$('#tipBtn').onclick=tip;$('#helpBtn').onclick=help;$('#fontReset').onclick=function(){font={top:1,canvas:1.15,side:1,bottom:1};applyFonts();render()};
+ document.querySelectorAll('.mode').forEach(function(b){b.onclick=function(){state.mode=b.dataset.mode;state.stage=state.mode==='PREDICT'?'predict':state.mode==='CHALLENGE'?'challenge':'experiment';state.answer=null;render()}});
+ document.querySelectorAll('[data-font]').forEach(function(b){b.onclick=function(){var k=b.dataset.font;font[k]=Math.max(.75,Math.min(2,font[k]+Number(b.dataset.step)*.25));applyFonts();render()}});
+ setupSplitters();applyFonts();render();
+}
+function setupSplitters(){
+ var sideStart,sideWidth,sideDrag=false;sideSplitter.onpointerdown=function(e){sideDrag=true;sideStart=e.clientX;sideWidth=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sideWidth'))||348;sideSplitter.classList.add('active');sideSplitter.setPointerCapture(e.pointerId)};
+ sideSplitter.onpointermove=function(e){if(!sideDrag)return;var w=Math.max(260,Math.min(520,sideWidth+(sideStart-e.clientX)));document.documentElement.style.setProperty('--sideWidth',w+'px')};
+ sideSplitter.onpointerup=function(){sideDrag=false;sideSplitter.classList.remove('active');renderSceneOnly()};
+ var bottomStart,bottomHeight,bottomDrag=false;bottomSplitter.onpointerdown=function(e){bottomDrag=true;bottomStart=e.clientY;bottomHeight=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--bottomHeight'))||76;bottomSplitter.classList.add('active');bottomSplitter.setPointerCapture(e.pointerId)};
+ bottomSplitter.onpointermove=function(e){if(!bottomDrag)return;var h=Math.max(58,Math.min(170,bottomHeight+(bottomStart-e.clientY)));document.documentElement.style.setProperty('--bottomHeight',h+'px')};
+ bottomSplitter.onpointerup=function(){bottomDrag=false;bottomSplitter.classList.remove('active');renderSceneOnly()};
+ sideSplitter.ondblclick=function(){document.documentElement.style.setProperty('--sideWidth','348px');renderSceneOnly()};
+ bottomSplitter.ondblclick=function(){document.documentElement.style.setProperty('--bottomHeight','76px');renderSceneOnly()};
+}
+function render(){
+ var t=current();document.title=t.code+' '+t.title+' · 九年级数学动态实验室';$('#metaId').textContent='项目编号：'+t.code;$('#metaTopic').textContent='知识点：'+t.title;
+ renderSidebar();renderSceneOnly();updateModes();status.textContent=t.goal;
+}
+function renderSidebar(){
+ var t=current(),groups=[];topics.forEach(function(x){if(groups.indexOf(x.group)<0)groups.push(x.group)});
+ var html='<div class="sideTitle">九年级数学动态实验室</div><p class="sideHint">不重复圆的实验室，集中补齐函数、方程、几何、统计、概率与综合建模。选择一个知识点，从“总览”开始。</p><div class="section"><h3>知识地图 · '+topics.length+' 个实验</h3>';
+ groups.forEach(function(g){html+='<div class="groupTitle">'+esc(g)+'</div>';topics.forEach(function(x,i){if(x.group===g)html+='<button class="topicButton '+(i===state.topic?'active ':'')+(state.done[x.code]?'done':'')+'" data-topic="'+i+'"><span class="topicCode">'+x.code+'</span><span class="topicName">'+esc(x.title)+'</span></button>'})});
+ html+='</div><div class="section"><h3>实验阶段</h3><div class="stageGrid">';
+ stages.forEach(function(s){html+='<button class="stageButton '+(state.stage===s.key?'active':'')+'" data-stage="'+s.key+'">'+s.icon+' '+s.name+'</button>'});
+ html+='</div></div><div class="section" id="lesson"></div>';
+ sidebar.innerHTML=html;sidebar.querySelectorAll('[data-topic]').forEach(function(b){b.onclick=function(){state.topic=Number(b.dataset.topic);state.stage='guide';state.mode='FREE';state.answer=null;resetParams();render()}});
+ sidebar.querySelectorAll('[data-stage]').forEach(function(b){b.onclick=function(){state.stage=b.dataset.stage;if(state.stage==='predict')state.mode='PREDICT';if(state.stage==='challenge')state.mode='CHALLENGE';if(state.stage==='experiment'||state.stage==='guide')state.mode='FREE';state.answer=null;render()}});
+ $('#lesson').innerHTML=lessonHtml(t);
+ bindControls();bindLessonActions();
+}
+function lessonHtml(t){
+ var h='<div class="sideTitle" style="font-size:1.05em">'+stages.filter(function(x){return x.key===state.stage})[0].icon+' '+stageTitle(t)+'</div>';
+ if(state.stage==='guide')h+='<div class="guideBox"><b>这一节学什么：</b>'+t.concept+'<br><br><b>为什么要学：</b>'+t.exam+'<br><br><b>第一步：</b>先观察实验图，再改变右侧参数，记下你看到的变化。</div>';
+ if(state.stage==='predict')h+='<div class="guideBox"><b>先猜后动手：</b>不要急着看答案，先写下你的预测，再用滑块验证。</div><div class="section"><h3>预测问题 1</h3><p>'+t.predict[0]+'</p>'+predictOptions(0,t)+'</div><div class="section"><h3>预测问题 2</h3><p>'+t.predict[1]+'</p>'+predictOptions(1,t)+'</div>';
+ if(state.stage==='experiment')h+='<div class="guideBox"><b>当前实验：</b>'+t.goal+'<br><br><b>观察重点：</b>参数改变时，图形的哪个量保持不变？哪个量跟着变化？</div><div class="section"><h3>操作参数</h3>'+controlsHtml(t)+'</div>';
+ if(state.stage==='discover')h+='<div class="guideBox"><b>把看到的现象写成规律：</b><br>'+t.concept+'<br><br><b>实验结果：</b>'+discoverText(t)+'</div><div class="tip">试着先口头说出“因为……所以……”再进入解释阶段。</div>';
+ if(state.stage==='explain')h+='<div class="guideBox"><b>为什么成立：</b>'+t.why+'<br><br><b>核心关系：</b><span class="success">'+t.formula+'</span></div><div class="tip">数学解释不是背结论，而是把图上的变化和公式中的量对应起来。</div>';
+ if(state.stage==='counter')h+='<div class="guideBox"><b>边界与易错：</b>'+t.counter+'</div><div class="tip">把参数调到边界，看看图形是否退化、交点是否改变，反例会帮助你知道结论的使用条件。</div>';
+ if(state.stage==='challenge')h+='<div class="challengeBox"><b>挑战任务</b><br>'+t.challenge+'<div class="answerRow"><input id="challengeInput" placeholder="输入你的设置或结论"><button class="answerButton" id="checkChallenge">检查</button></div><div id="challengeResult"></div></div><div class="section"><h3>中考迁移</h3><p>'+t.exam+'</p></div>';
+ h+='<div class="section"><button class="actionButton" id="doneBtn">'+(state.done[t.code]?'✅ 已标记完成':'☑ 标记本知识点完成')+'</button> <button class="actionButton" id="nextBtn">下一个实验 →</button></div>';
+ return h;
+}
+function stageTitle(t){return state.stage==='guide'?'知识点导读 · '+t.code:state.stage==='predict'?'预测实验 · 先猜后做':state.stage==='experiment'?'动手实验 · 改变参数':state.stage==='discover'?'发现规律 · 记录现象':state.stage==='explain'?'解释原因 · 对应公式':state.stage==='counter'?'边界反例 · 易错提醒':'挑战应用 · 中考迁移'}
+function predictOptions(n,t){var labels=t.answers[n] instanceof Array?t.answers[n]:[t.answers[n],n===0?'不确定':'需要实验验证'];return '<div class="controlActions">'+labels.map(function(x,i){return '<button class="answerButton" data-predict="'+n+'" data-answer="'+esc(x)+'">'+esc(x)+'</button>'}).join('')+'</div>'+(state.answer&&state.answer.n===n?'<div class="'+(state.answer.ok?'success':'tip')+'">'+(state.answer.ok?'✅ 预测正确！':'先记录你的判断，再观察实验。')+'</div>':'')}
+function controlsHtml(t){
+ var p=state.params, h='';
+ function range(key,label,min,max,step){h+='<div class="control"><label for="p-'+key+'">'+label+'</label><input id="p-'+key+'" data-param="'+key+'" type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+p[key]+'"><output id="o-'+key+'">'+fmt(p[key],2)+'</output></div>'}
+ if(t.renderer==='parabola'){range('a','a',-3,3,.1);range('h','h',-4,4,.5);range('k','k',-3,3,.5)}
+ if(t.renderer==='general'){range('a','a',-3,3,.5);range('b','b',-6,6,.5);range('c','c',-6,6,.5)}
+ if(t.renderer==='roots'){range('a','a',-3,3,.5);range('b','b',-8,8,.5);range('c','c',-8,8,.5)}
+ if(t.renderer==='model'){range('a','a',-0.5,.5,.01);range('h','最高点横坐标',0,10,.5);range('k','最高/最低值',-2,8,.5)}
+ if(t.renderer==='reciprocal'){range('k','k',-8,8,.5);range('x','点P横坐标',-5,5,.1)}
+ if(t.renderer==='similar'){range('scale','相似比 m',.25,1,.05)}
+ if(t.renderer==='trig'){range('angle','角度 θ',10,80,1);range('hyp','斜边',4,10,.5)}
+ if(t.renderer==='probability'){range('fav','有利结果',0,10,1);range('total','总结果',1,10,1);h+='<div class="controlActions"><button class="miniButton" data-action="trial1">随机 1 次</button><button class="miniButton" data-action="trial50">重复 50 次</button><button class="miniButton" data-action="trialReset">清空试验</button></div>'}
+ if(t.renderer==='stats'){range('last','最后一个数据',0,20,1)}
+ if(t.renderer==='projection'){range('height','高度',1,5,1);range('depth','深度',1,5,1)}
+ if(t.renderer==='intersect'){range('lineK','直线斜率',-2,2,.1);range('lineB','直线截距',-4,4,.5);range('a','抛物线 a',.1,1,.05)}
+ if(t.renderer==='area'){range('x','动点位置 x',0,8,.1)}
+ return h;
+}
+function bindControls(){
+ sidebar.querySelectorAll('[data-param]').forEach(function(inp){inp.oninput=function(){var key=inp.dataset.param;state.params[key]=Number(inp.value);var out=$('#o-'+key);if(out)out.textContent=fmt(state.params[key],2);renderSceneOnly();status.textContent='正在改变 '+key+'，观察图形变化';}});
+ sidebar.querySelectorAll('[data-action]').forEach(function(b){b.onclick=function(){if(b.dataset.action==='trial1')runTrials(1);if(b.dataset.action==='trial50')runTrials(50);if(b.dataset.action==='trialReset'){state.trials=0;state.hits=0;renderSceneOnly();renderSidebar()}}});
+ sidebar.querySelectorAll('[data-predict]').forEach(function(b){b.onclick=function(){var n=Number(b.dataset.predict);state.answer={n:n,ok:b.dataset.answer===current().answers[n]};renderSidebar();status.textContent=state.answer.ok?'预测正确，去实验阶段验证吧！':'保留你的预测，去实验阶段看看。'}});
+}
+function bindLessonActions(){
+ var d=$('#doneBtn'),n=$('#nextBtn');if(d)d.onclick=function(){state.done[current().code]=true;try{localStorage.setItem('math-lab-done',JSON.stringify(state.done))}catch(e){}renderSidebar();status.textContent='✅ 已记录：'+current().code+' '+current().title};
+ if(n)n.onclick=function(){state.topic=(state.topic+1)%topics.length;state.stage='guide';state.answer=null;resetParams();render()};
+ var c=$('#checkChallenge');if(c)c.onclick=function(){var v=($('#challengeInput')||{}).value||'';var t=current();var ok=v&&((t.code==='F04-04'&&/δ|Δ|0|一个/.test(v))||(t.code==='F04-02'&&/−?2|2|3/.test(v))||(t.code==='C03-06'&&/30/.test(v))||(t.code==='D03-02'&&/1\/2|0\.5|一半/.test(v))||(t.code==='C03-02'&&/0\.5|1\/4|四分之一/.test(v))||v.length>4);var r=$('#challengeResult');r.innerHTML=ok?'<p class="success">✅ 思路可行！回到图形核对参数和结论。</p>':'<p class="tip">再观察一次图形，把关键参数或公式写得更具体。</p>';status.textContent=ok?'挑战已通过，继续验证你的设置。':'挑战还需要一点证据。'};
+}
+function resetParams(){state.params=clone(current().params);state.trials=0;state.hits=0}
+function resetTopic(){resetParams();state.stage='guide';state.mode='FREE';state.answer=null;render();status.textContent='已重置当前实验'}
+function runTrials(n){var t=current(),p=state.params,fav=Math.max(0,Math.min(Number(p.fav)||0,Number(p.total)||1)),total=Math.max(1,Number(p.total)||1);for(var i=0;i<n;i++){state.trials++;if(Math.random()<fav/total)state.hits++}renderSceneOnly();status.textContent='完成 '+n+' 次随机试验：频率 '+(state.trials?fmt(state.hits/state.trials,3):'0')};
+function svgStart(){return '<svg id="scene" viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="数学动态实验图形">'}
+function svgEnd(){return '</svg>'}
+function line(x1,y1,x2,y2,cls,extra){return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" class="'+(cls||'line')+'" '+(extra||'')+'/>'}
+function text(x,y,s,cls,anchor){return '<text x="'+x+'" y="'+y+'" class="'+(cls||'label')+'" text-anchor="'+(anchor||'middle')+'">'+esc(s)+'</text>'}
+function coord(x,y,ox,oy,scale){return [ox+x*scale,oy-y*scale]}
+function axes(ox,oy,scale,xmin,xmax,ymin,ymax){
+ var h='<g class="grid">';
+ for(var x=Math.ceil(xmin);x<=xmax;x++)h+=line(ox+x*scale,oy-ymin*scale,ox+x*scale,oy-ymax*scale,'gridline');
+ for(var y=Math.ceil(ymin);y<=ymax;y++)h+=line(ox+xmin*scale,oy-y*scale,ox+xmax*scale,oy-y*scale,'gridline');
+ h+='</g>'+line(ox+xmin*scale,oy,ox+xmax*scale,oy,'axis')+line(ox,oy-ymin*scale,ox,oy-ymax*scale,'axis')+text(ox+xmax*scale-9,oy-10,'x','axisText','end')+text(ox+10,oy-ymax*scale+20,'y','axisText','start')+text(ox-8,oy+17,'O','axisText','end');
+ for(var i=Math.ceil(xmin);i<=xmax;i++){if(i!==0)h+=text(ox+i*scale,oy+20,String(i),'tickText')}
+ for(var j=Math.ceil(ymin);j<=ymax;j++){if(j!==0)h+=text(ox-12,oy-j*scale+4,String(j),'tickText','end')}
+ return h;
+}
+function pathFn(fn,xmin,xmax,step,ox,oy,scale){
+ var d='',open=false;for(var x=xmin;x<=xmax;x+=step){var y=fn(x);if(!Number.isFinite(y)||y<-8||y>8){open=false;continue}var p=coord(x,y,ox,oy,scale);d+=(open?'L':'M')+fmt(p[0],1)+' '+fmt(p[1],1);open=true}return '<path d="'+d+'" class="curve"/>';
+}
+function sceneStyles(){return '<style>.gridline{stroke:#e7edf4;stroke-width:1}.axis{stroke:#64748b;stroke-width:2}.axisText{fill:#475569;font-size:'+Math.round(16*font.canvas)+'px;font-weight:700}.tickText{fill:#94a3b8;font-size:'+Math.round(12*font.canvas)+'px}.curve{fill:none;stroke:#2563eb;stroke-width:4;stroke-linecap:round}.curve2{fill:none;stroke:#dc2626;stroke-width:3.5;stroke-linecap:round}.dash{stroke:#94a3b8;stroke-width:2;stroke-dasharray:8 7}.point{stroke:#fff;stroke-width:3}.svgLabel{fill:#334155;font-size:'+Math.round(16*font.canvas)+'px;font-weight:700}.svgSmall{fill:#64748b;font-size:'+Math.round(13*font.canvas)+'px}.green{fill:#059669}.red{fill:#dc2626}.amber{fill:#d97706}.blueFill{fill:#2563eb}.bar{fill:#93c5fd}.bar2{fill:#fbbf24}.shape{stroke:#2563eb;stroke-width:3;fill:#dbeafe;fill-opacity:.65}.shape2{stroke:#7c3aed;stroke-width:3;fill:#ede9fe;fill-opacity:.65}</style>';
+}
+function renderSceneOnly(){
+ if(!scene)return;var t=current(),p=state.params,h=svgStart()+sceneStyles();
+ if(t.renderer==='parabola')h+=drawParabola(p,false);
+ if(t.renderer==='general')h+=drawGeneral(p);
+ if(t.renderer==='roots')h+=drawRoots(p);
+ if(t.renderer==='model')h+=drawParabola(p,true);
+ if(t.renderer==='reciprocal')h+=drawReciprocal(p);
+ if(t.renderer==='similar')h+=drawSimilar(p);
+ if(t.renderer==='trig')h+=drawTrig(p);
+ if(t.renderer==='probability')h+=drawProbability(p);
+ if(t.renderer==='stats')h+=drawStats(p);
+ if(t.renderer==='projection')h+=drawProjection(p);
+ if(t.renderer==='intersect')h+=drawIntersect(p);
+ if(t.renderer==='area')h+=drawArea(p);
+ scene.outerHTML=h+svgEnd();scene=$('#scene');scene.classList.add('pulse');setTimeout(function(){if(scene)scene.classList.remove('pulse')},700);
+}
+function drawParabola(p,model){
+ var a=Number(p.a),h=Number(p.h)||0,k=Number(p.k)||0,ox=450,oy=300,s=42;
+ var out=axes(ox,oy,s,-8,8,-5.5,6)+pathFn(function(x){return a*(x-h)*(x-h)+k},-8,8,.05,ox,oy,s)+line(ox+h*s,oy+5.5*s,ox+h*s,oy-5.5*s,'dash');
+ var v=coord(h,k,ox,oy,s);out+='<circle cx="'+v[0]+'" cy="'+v[1]+'" r="9" class="point" fill="#059669"/>'+text(v[0],v[1]-16,'V('+fmt(h)+','+fmt(k)+')','svgLabel');
+ out+=text(24,38,model?'实际模型：顶点表示最值':'顶点式动态实验','svgLabel','start')+text(24,64,'y = '+fmt(a)+'(x − '+fmt(h)+')² + '+fmt(k),'svgSmall','start')+text(876,522,'改变右侧参数，观察曲线实时变化','svgSmall','end');
+ if(model)out+=text(24,94,a<0?'开口向下：最高值 = '+fmt(k):'开口向上：最低值 = '+fmt(k),'svgLabel','start');
+ return out;
+}
+function drawGeneral(p){
+ var a=Number(p.a),b=Number(p.b),c=Number(p.c),ox=450,oy=300,s=42,axis=-b/(2*a||1),vertex=a*axis*axis+b*axis+c,v=coord(axis,vertex,ox,oy,s);
+ var out=axes(ox,oy,s,-8,8,-5.5,6)+pathFn(function(x){return a*x*x+b*x+c},-8,8,.05,ox,oy,s)+line(ox+axis*s,oy+5.5*s,ox+axis*s,oy-5.5*s,'dash');
+ out+='<circle cx="'+v[0]+'" cy="'+v[1]+'" r="9" class="point" fill="#059669"/>'+text(v[0],v[1]-16,'V('+fmt(axis)+','+fmt(vertex)+')','svgLabel')+text(24,38,'一般式实验','svgLabel','start')+text(24,64,'y = '+fmt(a)+'x² + '+fmt(b)+'x + '+fmt(c),'svgSmall','start')+text(24,92,'对称轴 x = '+fmt(axis),'svgLabel','start');return out;
+}
+function drawRoots(p){
+ var a=Number(p.a)||.5,b=Number(p.b),c=Number(p.c),D=b*b-4*a*c,ox=450,oy=300,s=42;
+ var out=axes(ox,oy,s,-8,8,-5.5,6)+pathFn(function(x){return a*x*x+b*x+c},-8,8,.05,ox,oy,s)+text(24,38,'根与判别式','svgLabel','start')+text(24,64,'Δ = '+fmt(D),'svgLabel','start');
+ if(D>1e-8){var r1=(-b-Math.sqrt(D))/(2*a),r2=(-b+Math.sqrt(D))/(2*a);[r1,r2].forEach(function(r){var q=coord(r,0,ox,oy,s);out+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="8" class="point" fill="#dc2626"/>'+text(q[0],q[1]+28,'x='+fmt(r),'svgLabel')})}
+ else if(Math.abs(D)<=1e-8){var r=-b/(2*a),q=coord(r,0,ox,oy,s);out+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="9" class="point" fill="#d97706"/>'+text(q[0],q[1]+28,'重根 x='+fmt(r),'svgLabel')}
+ out+=text(24,94,D>1e-8?'两个交点':Math.abs(D)<=1e-8?'一个交点':'没有 x 轴交点','svgSmall','start')+text(876,522,'交点横坐标就是方程的实根','svgSmall','end');return out;
+}
+function drawReciprocal(p){
+ var k=Number(p.k)||.1,x=Number(p.x);if(Math.abs(x)<.2)x=x<0?-.2:.2;var y=k/x,ox=450,oy=300,s=42;
+ var out=axes(ox,oy,s,-8,8,-5.5,6)+pathFn(function(q){return k/q},-8,-.2,.03,ox,oy,s)+pathFn(function(q){return k/q},.2,8,.03,ox,oy,s);
+ var q=coord(x,y,ox,oy,s),px=coord(x,0,ox,oy,s),py=coord(0,y,ox,oy,s),area=Math.abs(x*y);
+ out+=line(q[0],q[1],px[0],px[1],'dash')+line(q[0],q[1],py[0],py[1],'dash')+'<rect x="'+Math.min(q[0],py[0])+'" y="'+Math.min(q[1],px[1])+'" width="'+Math.abs(px[0]-py[0])+'" height="'+Math.abs(px[1]-py[1])+'" fill="#dbeafe" fill-opacity=".5" stroke="#93c5fd" stroke-width="2"/><circle cx="'+q[0]+'" cy="'+q[1]+'" r="10" class="point" fill="#7c3aed"/>'+text(q[0]+14,q[1]-14,'P('+fmt(x)+','+fmt(y)+')','svgLabel','start')+text(24,38,'反比例函数','svgLabel','start')+text(24,64,'xy = k = '+fmt(k),'svgSmall','start')+text(24,92,'矩形面积 |xy| = '+fmt(area),'svgLabel','start');return out;
+}
+function drawSimilar(p){
+ var m=Number(p.scale),A=[450,90],B=[170,450],C=[730,450],D=[A[0]+m*(B[0]-A[0]),A[1]+m*(B[1]-A[1])],E=[A[0]+m*(C[0]-A[0]),A[1]+m*(C[1]-A[1])];
+ var out='<polygon points="'+A+' '+B+' '+C+'" class="shape"/><polygon points="'+A+' '+D+' '+E+'" class="shape2"/>'+line(D[0],D[1],E[0],E[1],'dash')+text(A[0],A[1]-18,'A','svgLabel')+text(B[0]-14,B[1]+22,'B','svgLabel')+text(C[0]+14,C[1]+22,'C','svgLabel')+text(D[0]-12,D[1]-10,'D','svgLabel')+text(E[0]+12,E[1]-10,'E','svgLabel')+text(24,38,'相似三角形实验','svgLabel','start')+text(24,68,'相似比 m = '+fmt(m),'svgLabel','start')+text(24,98,'面积比 = m² = '+fmt(m*m),'svgSmall','start')+text(876,522,'DE ∥ BC，观察对应边成比例','svgSmall','end');return out;
+}
+function drawTrig(p){
+ var deg=Number(p.angle),rad=deg*Math.PI/180,hyp=Number(p.hyp),s=40,A=[170,440],adj=hyp*Math.cos(rad)*s,opp=hyp*Math.sin(rad)*s,B=[A[0]+adj,A[1]],C=[A[0],A[1]-opp],sin=Math.sin(rad),cos=Math.cos(rad),tan=Math.tan(rad);
+ var out='<polygon points="'+A+' '+B+' '+C+'" class="shape"/>'+line(C[0],C[1],C[0]+35,C[1],'dash')+line(C[0]+35,C[1],C[0]+35,C[1]+35,'dash')+text(A[0]+34,A[1]-10,'θ='+deg+'°','svgLabel','start')+text((A[0]+B[0])/2,B[1]+25,'邻边 '+fmt(adj/s),'svgSmall')+text(C[0]-45,(B[1]+C[1])/2,'对边 '+fmt(opp/s),'svgSmall','end')+text((A[0]+C[0])/2-10,(A[1]+C[1])/2-16,'斜边 '+fmt(hyp),'svgSmall')+text(24,38,'锐角三角函数','svgLabel','start')+text(24,70,'sinθ = '+fmt(sin,3)+'   cosθ = '+fmt(cos,3),'svgLabel','start')+text(24,100,'tanθ = '+fmt(tan,3),'svgLabel','start')+text(876,522,'改变角度，观察比值而不是长度','svgSmall','end');return out;
+}
+function drawProbability(p){
+ var total=Math.max(1,Number(p.total)||1),fav=Math.max(0,Math.min(total,Number(p.fav)||0)),prob=fav/total,freq=state.trials?state.hits/state.trials:0;
+ var out='<rect x="90" y="100" width="720" height="300" rx="18" fill="#f8fafc" stroke="#dbe5ef" stroke-width="2"/>'+text(450,65,'概率是“有利结果”占“所有等可能结果”的比例','svgLabel')+text(240,445,'理论概率 P = '+fav+'/'+total+' = '+fmt(prob,3),'svgLabel')+text(660,445,'实验频率 = '+(state.trials?state.hits+'/'+state.trials+' = '+fmt(freq,3):'尚未试验'),'svgLabel')+'<rect x="170" y="160" width="220" height="170" rx="10" fill="#dbeafe"/><rect x="510" y="'+(330-170*freq)+'" width="220" height="'+(170*freq)+'" rx="10" fill="#fbbf24"/>'+text(280,145,'理论比例','svgSmall')+text(620,145,'实验频率','svgSmall')+text(280,355,fmt(prob,3),'svgLabel')+text(620,355,fmt(freq,3),'svgLabel')+text(24,510,'点击右侧按钮，重复随机试验','svgSmall','start');return out;
+}
+function drawStats(p){
+ var vals=[6,8,8,9,10,12,Number(p.last)||0],sorted=vals.slice().sort(function(a,b){return a-b}),mean=vals.reduce(function(a,b){return a+b},0)/vals.length,med=sorted[3],range=Math.max.apply(null,vals)-Math.min.apply(null,vals),out=axes(100,400,42,0,8,0,16);
+ vals.forEach(function(v,i){var x=150+i*95,y=400-v*18;out+='<rect x="'+(x-22)+'" y="'+y+'" width="44" height="'+(v*18)+'" rx="5" class="bar"/>'+text(x,y-10,'x'+(i+1)+'='+fmt(v),'svgSmall')});
+ out+=text(24,38,'统计量实验','svgLabel','start')+text(24,70,'平均数 = '+fmt(mean,2)+'   中位数 = '+fmt(med)+'   极差 = '+fmt(range),'svgLabel','start')+text(876,522,'把最后一个数据调成极端值，比较三种统计量','svgSmall','end');return out;
+}
+function drawProjection(p){
+ var H=Number(p.height)||3,D=Number(p.depth)||2,base=80,frontX=150,frontY=400,w=base*3,h=H*base,d=D*base;
+ var out=text(24,38,'立体与三视图','svgLabel','start')+'<polygon points="'+frontX+','+(frontY-h)+' '+(frontX+w)+','+(frontY-h)+' '+(frontX+w)+','+frontY+' '+frontX+','+frontY+'" class="shape"/><polygon points="'+frontX+','+(frontY-h)+' '+(frontX+d)+','+(frontY-h-d*.55)+' '+(frontX+w+d)+','+(frontY-h-d*.55)+' '+(frontX+w)+','+(frontY-h)+'" class="shape2"/><polygon points="'+(frontX+w)+','+(frontY-h)+' '+(frontX+w+d)+','+(frontY-h-d*.55)+' '+(frontX+w+d)+','+(frontY-d*.55)+' '+(frontX+w)+','+frontY+'" fill="#ede9fe" stroke="#7c3aed" stroke-width="3"/>'+text(350,480,'主视图：长×高 = 3×'+H,'svgLabel')+text(620,480,'俯视图：长×宽 = 3×'+D,'svgLabel')+text(770,250,'左视图：宽×高','svgSmall')+text(24,90,'高度 h='+H+'，深度 d='+D,'svgLabel','start')+text(876,522,'改变高度和深度，比较三个视图','svgSmall','end');return out;
+}
+function drawIntersect(p){
+ var lk=Number(p.lineK),lb=Number(p.lineB),a=Number(p.a)||.1,ox=450,oy=300,s=42,out=axes(ox,oy,s,-8,8,-5.5,6)+pathFn(function(x){return a*x*x},-8,8,.05,ox,oy,s);
+ var d='',hits=[];for(var x=-8;x<=8;x+=.04){var y=lk*x+lb;if(y>-6&&y<7){var q=coord(x,y,ox,oy,s);d+=(d?'L':'M')+fmt(q[0],1)+' '+fmt(q[1],1);var diff=a*x*x-y;if(Math.abs(diff)<.05)hits.push([x,y])}}out+='<path d="'+d+'" class="curve2"/>';var last=-999;hits.forEach(function(pt){if(Math.abs(pt[0]-last)>.25){var q=coord(pt[0],pt[1],ox,oy,s);out+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="9" class="point" fill="#d97706"/>';last=pt[0]}});out+=text(24,38,'函数交点实验','svgLabel','start')+text(24,68,'直线 y='+fmt(lk)+'x+'+fmt(lb)+'；抛物线 y='+fmt(a)+'x²','svgSmall','start')+text(24,98,'交点 = 联立方程的解','svgLabel','start');return out;
+}
+function drawArea(p){
+ var x=Math.max(0,Math.min(8,Number(p.x)||0)),A=[110,430],B=[810,430],C=[110+x*87.5,120],area=x*8/2, out='<polygon points="'+A+' '+B+' '+C+'" class="shape"/>'+line(C[0],C[1],C[0],430,'dash')+text(A[0]-12,A[1]+24,'A','svgLabel')+text(B[0]+12,B[1]+24,'B','svgLabel')+text(C[0]+10,C[1]-12,'P('+fmt(x)+',8)','svgLabel','start')+text(24,38,'动点与面积','svgLabel','start')+text(24,70,'底边 AP = '+fmt(x)+'，高 = 8，面积 = '+fmt(area),'svgLabel','start')+text(876,522,'拖动 x，观察面积与底边成正比','svgSmall','end');return out;
+}
+function discoverText(t){
+ var p=state.params;
+ if(t.renderer==='parabola'||t.renderer==='general'||t.renderer==='model')return '当前顶点为（'+fmt(Number(p.h)||0)+','+fmt(Number(p.k)||0)+'），请检查图中的对称轴。';
+ if(t.renderer==='roots')return '当前 Δ = '+fmt(Number(p.b)*Number(p.b)-4*Number(p.a)*Number(p.c))+'，图上交点数应与它一致。';
+ if(t.renderer==='reciprocal')return '当前 xy = '+fmt(Number(p.k))+'，矩形面积为 '+fmt(Math.abs(Number(p.k)))+'。';
+ if(t.renderer==='similar')return '当前面积比 = '+fmt(Number(p.scale)*Number(p.scale),3)+'。';
+ if(t.renderer==='trig')return '当前 tanθ = '+fmt(Math.tan(Number(p.angle)*Math.PI/180),3)+'。';
+ if(t.renderer==='probability')return '理论概率为 '+fmt((Number(p.fav)||0)/(Number(p.total)||1),3)+'；重复次数越多，频率通常越有参考价值。';
+ if(t.renderer==='stats')return '调节最后一个数据，观察平均数、中位数、极差谁变化更敏感。';
+ return t.formula;
+}
+function updateModes(){document.querySelectorAll('.mode').forEach(function(b){var a=b.dataset.mode===state.mode;b.classList.toggle('active',a)})}
+function tip(){var t=current();status.textContent=t.goal;var box=$('.tip');if(box)box.scrollIntoView({behavior:'smooth',block:'nearest'});else{state.stage='experiment';render()}};
+function help(){status.textContent='先选阶段，再拖动右侧滑块；观察图形、公式和侧栏数据是否同步变化。'}
+function fit(){if(scene){scene.classList.remove('pulse');void scene.offsetWidth;scene.classList.add('pulse');status.textContent='🎯 观察视图已居中，数学参数没有改变。'}}
+function showGuide(){var t=current(),back=document.createElement('div');back.className='modalBack';back.innerHTML='<div class="modal"><button class="close">关闭</button><h2>📘 '+esc(t.code)+' '+esc(t.title)+'</h2><p><b>你已经会什么：</b>初步认识坐标、函数或图形中的量。</p><p><b>你要亲手做什么：</b>'+esc(t.goal)+'</p><p><b>重点观察什么：</b>参数改变后，哪些量保持不变，哪些量跟着变化。</p><p><b>带着什么问题：</b>'+esc(t.predict[0])+'</p><p><b>学完应该会什么：</b>'+esc(t.concept)+'</p><p><b>易错提醒：</b>'+esc(t.counter)+'</p><button class="actionButton startGuide">开始实验</button></div>';document.body.appendChild(back);back.querySelector('.close').onclick=function(){back.remove()};back.querySelector('.startGuide').onclick=function(){back.remove();state.stage='experiment';state.mode='FREE';render()}}
+function init(){app=document.getElementById('app');try{state.done=JSON.parse(localStorage.getItem('math-lab-done')||'{}')}catch(e){state.done={}}resetParams();shell()}
+document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+</body>
+</html>

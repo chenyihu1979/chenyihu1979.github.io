@@ -28,6 +28,7 @@ main{width:min(1180px,100%);margin:auto;padding:18px}
 .callout{margin-top:16px;padding:14px 16px;border-radius:14px;background:#fbfcff;border:1px solid var(--line);font-weight:800}
 .art{min-height:260px;border:1px dashed #c7d3e2;border-radius:18px;background:#fbfdff;display:grid;place-items:center;padding:15px}
 .btn{border:none;border-radius:13px;min-height:46px;padding:11px 17px;font-weight:800}
+.btn:is(a){display:inline-flex;align-items:center;text-decoration:none}
 .primary{background:var(--accent);color:#fff}.secondary{background:var(--soft);color:#174ea6}.ghost{background:#fff;color:var(--text);border:1px solid var(--line)}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .stage{display:none}.stage.active{display:block}
@@ -235,7 +236,7 @@ main{width:min(1180px,100%);margin:auto;padding:18px}
         <div class="summary"><strong>我能迁移</strong><span>下次先预测操作会带来什么后果</span></div>
       </div>
       <div class="callout" style="text-align:left">一句话记住：<strong>实验规范能降低污染、洒出、烫伤和错误结果的风险；模拟合格不等于具备独立操作资格。</strong></div>
-      <div class="actions" style="justify-content:center"><button class="btn secondary" id="redo">再做一次</button><button class="btn primary" id="save">完成并保存进度</button></div>
+      <div class="actions" style="justify-content:center"><button class="btn secondary" id="redo">再做一次</button><button class="btn primary" id="save">完成并保存进度</button><a class="btn secondary" href="../c01-02/index.html">进入下一课：固体药品取用 →</a></div>
       <div class="mini" id="saved"></div>
     </div>
   </section>

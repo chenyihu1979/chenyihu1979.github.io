@@ -73,6 +73,25 @@
       margin-top: 24px;
     }
 
+    .learner-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 20px;
+      padding: 16px 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+    }
+
+    .learner-panel label { font-weight: 700; }
+    .learner-panel select { min-height: 44px; padding: 8px 12px; border: 1px solid #94b4cb; border-radius: 10px; font: inherit; }
+    .learner-panel p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .recent { color: var(--ink); }
+    .recent a { color: var(--blue-dark); font-weight: 700; }
+
     .subject {
       display: flex;
       min-height: 220px;
@@ -159,31 +178,76 @@
       <p class="intro">把数学与自然科学变成可以观察、操作、思考和练习的学习实验室。</p>
     </section>
 
+    <section class="learner-panel" aria-label="本机学习者">
+      <div>
+        <label for="learner">本机学习者</label>
+        <p>选好名字再进入学科；这里只记录上次打开的学科，不代表已经学会。</p>
+      </div>
+      <select id="learner" aria-label="选择学习者">
+        <option value="">暂不记录</option>
+        <option value="juhao">陈聚灏</option>
+        <option value="juyao">陈聚垚</option>
+      </select>
+      <div class="recent" id="recent" aria-live="polite"></div>
+    </section>
+
     <section class="subjects" aria-label="学习内容">
       <article class="subject">
         <div class="subject-icon" aria-hidden="true">🧪</div>
         <h2>初中数学完整动态实验室 V4.0</h2>
         <p>144 个知识点统一入口：基础观察台、圆 V3.0 Gold 和九年级深度动态实验整合在同一张知识地图中。</p>
-        <a href="./math/">进入柳州数学实验室&nbsp;→</a>
+        <a href="./math/" data-subject="数学">进入柳州数学实验室&nbsp;→</a>
       </article>
 
       <article class="subject">
         <div class="subject-icon" aria-hidden="true">⚗</div>
         <h2>初中化学元素导航中心</h2>
         <p>CB02 元素导航中心：认识元素、观察真实图像、学习符号规律并完成小闯关。</p>
-        <a href="./chemistry/cb02/index.html">进入化学元素中心&nbsp;→</a>
+        <a href="./chemistry/cb02/index.html" data-subject="化学">进入化学元素中心&nbsp;→</a>
       </article>
 
       <article class="subject">
         <div class="subject-icon" aria-hidden="true">🔊</div>
         <h2>英语学习 · Units 1–6</h2>
         <p>六个英语自学单元，包含听读、词汇、句子结构和中文辅助学习。</p>
-        <a href="./english/index.html">进入英语学习&nbsp;→</a>
+        <a href="./english/index.html" data-subject="英语">进入英语学习&nbsp;→</a>
       </article>
     </section>
 
     <p class="note">本中心不含广告、搜索引擎、统计代码或社交链接。学习材料尽量使用本地资源，适合在受限网络环境中使用。</p>
     <footer>© 陈聚灏学习中心</footer>
   </main>
+  <script>
+    (() => {
+      const key = 'learning-lab:v1:active-learner';
+      const names = { juhao: '陈聚灏', juyao: '陈聚垚' };
+      const select = document.getElementById('learner');
+      const recent = document.getElementById('recent');
+      const paths = { '数学': './math/', '化学': './chemistry/cb02/index.html', '英语': './english/index.html' };
+      function read(storageKey) { try { return localStorage.getItem(storageKey); } catch { return null; } }
+      function write(storageKey, value) { try { localStorage.setItem(storageKey, value); } catch {} }
+      function render() {
+        recent.replaceChildren();
+        const id = select.value;
+        if (!id) return;
+        const subject = read('learning-lab:v1:' + id + ':last-subject');
+        if (!paths[subject]) { recent.textContent = names[id] + '：还没有打开过学科'; return; }
+        recent.append(document.createTextNode(names[id] + '上次打开：'));
+        const link = document.createElement('a');
+        link.href = paths[subject];
+        link.textContent = subject + ' · 继续进入';
+        link.dataset.subject = subject;
+        recent.append(link);
+      }
+      const saved = read(key);
+      if (Object.hasOwn(names, saved)) select.value = saved;
+      select.addEventListener('change', () => { write(key, select.value); render(); });
+      document.addEventListener('click', event => {
+        const link = event.target.closest('a[data-subject]');
+        if (link && select.value) write('learning-lab:v1:' + select.value + ':last-subject', link.dataset.subject);
+      });
+      render();
+    })();
+  </script>
 </body>
 </html>

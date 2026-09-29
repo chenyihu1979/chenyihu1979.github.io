@@ -14,7 +14,7 @@
 
 ## 工程与发布
 
-主站为此仓库 `index.html`；数学总览 `math/`，化学 `chemistry/`，英语 `english/`。新模块使用相对链接从学科总览进入，能返回；正式入口在 HTTPS 静态托管运行，不依赖开发端口。知识地图和总览要与实际发布文件同步。先运行 `python3 tools/audit_site.py .`，再在正式页面逐项操作验收按钮、导读、触控、窄屏、边界、导航和刷新。预检通过不等于交互通过。
+主站为此仓库 `index.html`；数学总览 `math/`，化学 `chemistry/`，英语 `english/`。化学地图数据在 `chemistry/knowledge-map.js`，修改后运行 `node chemistry/generate_map.cjs` 同步可读清单。新模块使用相对链接从学科总览进入，能返回；正式入口在 HTTPS 静态托管运行，不依赖开发端口。知识地图和总览要与实际发布文件同步。先运行 `python3 tools/audit_site.py .`，再在正式页面逐项操作验收按钮、导读、触控、窄屏、边界、导航和刷新。预检通过不等于交互通过。
 
 ## 本机学习记录
 

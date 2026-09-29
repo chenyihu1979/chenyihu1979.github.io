@@ -201,9 +201,9 @@
 
       <article class="subject">
         <div class="subject-icon" aria-hidden="true">⚗</div>
-        <h2>初中化学元素导航中心</h2>
-        <p>CB02 元素导航中心：认识元素、观察真实图像、学习符号规律并完成小闯关。</p>
-        <a href="./chemistry/cb02/index.html" data-subject="化学">进入化学元素中心&nbsp;→</a>
+        <h2>柳州初中化学 · 知识地图</h2>
+        <p>从实验、微观粒子和化学方程式，走向常见物质、溶液、酸碱盐与综合实践。已上线内容与待开发内容清楚区分。</p>
+        <a href="./chemistry/index.html" data-subject="化学">进入化学知识地图&nbsp;→</a>
       </article>
 
       <article class="subject">
@@ -223,7 +223,7 @@
       const names = { juhao: '陈聚灏', juyao: '陈聚垚' };
       const select = document.getElementById('learner');
       const recent = document.getElementById('recent');
-      const paths = { '数学': './math/', '化学': './chemistry/cb02/index.html', '英语': './english/index.html' };
+      const paths = { '数学': './math/', '化学': './chemistry/index.html', '英语': './english/index.html' };
       function read(storageKey) { try { return localStorage.getItem(storageKey); } catch { return null; } }
       function write(storageKey, value) { try { localStorage.setItem(storageKey, value); } catch {} }
       function render() {

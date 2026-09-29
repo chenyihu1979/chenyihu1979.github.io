@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>柳州初中化学 · 知识地图</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <style>
+    :root{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:#18344a;background:#f1f8f6}
+    *{box-sizing:border-box} body{margin:0} main{width:min(1080px,calc(100% - 28px));margin:auto;padding:18px 0 54px}
+    a{color:#176c66} a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #1b8175;outline-offset:2px}
+    .back{display:inline-block;padding:9px 13px;background:white;border-radius:12px;text-decoration:none}
+    header{background:linear-gradient(130deg,#e0f4ed,#eff8ff);border:1px solid #cce5dc;border-radius:22px;padding:25px;margin-top:16px}
+    h1{font-size:clamp(28px,5vw,42px);margin:4px 0 12px} header p{line-height:1.7;margin:0}
+    .first{margin:18px 0;padding:17px 20px;border-left:5px solid #138074;border-radius:13px;background:white;line-height:1.7}
+    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 12px}
+    input{font:inherit;padding:11px 13px;border:1px solid #aac9c3;border-radius:11px;min-height:46px;flex:1;min-width:220px}
+    button{font:inherit;padding:10px 14px;border:1px solid #93c5bc;background:white;border-radius:11px;min-height:46px;cursor:pointer}
+    button[aria-pressed="true"]{background:#176c66;color:white}
+    #count{color:#456b6b;margin:0 0 14px}
+    .group{background:white;border:1px solid #d5e7e2;border-radius:17px;margin:15px 0;padding:0 18px;box-shadow:0 6px 18px #0f48450d}
+    .group summary{cursor:pointer;padding:18px 0;list-style:none;display:flex;align-items:center;gap:12px}
+    .group summary::-webkit-details-marker{display:none}.group h2{font-size:19px;margin:0;flex:1}
+    .group small{color:#587472}.theme{font-size:12px;color:#4a746a;margin:0 0 12px}
+    ul{list-style:none;margin:0 0 17px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+    li{padding:12px;border:1px solid #e1eeeb;border-radius:10px;line-height:1.5;overflow-wrap:anywhere}
+    li.live{border-color:#77bfb2;background:#f1fbf8} .id{font-weight:700;color:#226b67;margin-right:7px}
+    .status{display:inline-block;font-size:12px;color:#6b7d7d;margin-left:6px}.live .status{color:#176c66;font-weight:700}
+    .empty{display:none;padding:30px;background:white;border-radius:12px} footer{color:#5c7372;line-height:1.7;font-size:13px;margin-top:22px}
+    @media(max-width:650px){ul{grid-template-columns:1fr}.group summary{flex-wrap:wrap}}
+  </style>
+</head>
+<body><main>
+  <a class="back" href="../index.html">🏠 返回学习中心</a>
+  <header><p>初中化学 · 柳州学习路径</p><h1>从现象走到方程式</h1>
+    <p>先动手看见变化，再弄清原子、元素和化学式，最后用方程式解释现象。这张地图涵盖初中化学主要学习内容；“待开发”表示学习页还未上线。</p></header>
+  <div class="first"><b>建议第一步：</b>打开“CB02 元素导航中心”，只认得常用元素的名称与符号即可。学方程式时再回来看化学式，不用一次背完全部内容。<br>
+    <a href="./cb02/index.html">进入已上线的元素导航中心 →</a></div>
+  <div class="controls"><input id="search" type="search" placeholder="找知识点，如 配平、过滤、酸碱" aria-label="搜索知识点">
+    <button id="all" aria-pressed="true">全部知识点</button><button id="live" aria-pressed="false">已上线</button></div>
+  <p id="count" aria-live="polite"></p><div id="groups"></div><p id="empty" class="empty">没有找到匹配的知识点，请换一个词。</p>
+  <footer>范围参照教育部《义务教育化学课程标准（2022年版）》的五个学习主题。按学习先后重新编排，并非教材章次或柳州试卷的逐题考纲。实际实验应由教师指导。<br>
+    <a href="https://www.ictr.edu.cn/download_center/ywjy.html">查看课程标准来源</a></footer>
+</main>
+<script src="./knowledge-map.js"></script>
+<script>
+(() => {
+  const data=window.CHEMISTRY_MAP, groups=document.getElementById('groups'), count=document.getElementById('count');
+  const search=document.getElementById('search'), all=document.getElementById('all'), live=document.getElementById('live');
+  let onlyLive=false;
+  const total=data.reduce((n,g)=>n+g.items.length,0), published=data.reduce((n,g)=>n+g.items.filter(x=>x[2]==='live').length,0);
+  function draw(){
+    const query=search.value.trim().toLocaleLowerCase(); let shown=0; groups.replaceChildren();
+    for(const group of data){
+      const items=group.items.filter(x=>(!onlyLive||x[2]==='live') && (!query||`${x[0]} ${x[1]} ${group.title} ${group.theme}`.toLocaleLowerCase().includes(query)));
+      if(!items.length)continue; shown+=items.length;
+      const details=document.createElement('details');details.className='group';details.open=!!query||onlyLive;
+      const summary=document.createElement('summary'), heading=document.createElement('h2'), number=document.createElement('small');
+      heading.textContent=`${group.id} · ${group.title}`;number.textContent=`${items.length} 个知识点`;summary.append(heading,number);details.append(summary);
+      const theme=document.createElement('p');theme.className='theme';theme.textContent=`课程主题：${group.theme}`;details.append(theme);
+      const list=document.createElement('ul');
+      for(const item of items){
+        const row=document.createElement('li'), code=document.createElement('span'), status=document.createElement('span');
+        code.className='id';code.textContent=item[0];row.append(code);
+        if(item[2]==='live'){
+          row.className='live';const link=document.createElement('a');link.href=item[3];link.textContent=item[1];row.append(link);status.textContent='已上线';
+        }else{row.append(document.createTextNode(item[1]));status.textContent='待开发';}
+        status.className='status';row.append(status);list.append(row);
+      }
+      details.append(list);groups.append(details);
+    }
+    count.textContent=`显示 ${shown} / ${total} 个知识点 · 已上线 ${published} 个`;
+    document.getElementById('empty').style.display=shown?'none':'block';
+    all.setAttribute('aria-pressed',String(!onlyLive));live.setAttribute('aria-pressed',String(onlyLive));
+  }
+  search.addEventListener('input',draw);all.addEventListener('click',()=>{onlyLive=false;draw()});live.addEventListener('click',()=>{onlyLive=true;draw()});draw();
+})();
+</script></body></html>

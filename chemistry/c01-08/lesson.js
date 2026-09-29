@@ -14,7 +14,7 @@ window.LESSON={
         const temp=v.temp===null?'待选择':v.temp===0?'40 ℃':'20 ℃';
         const water=v.water===null?'待选择':v.water===0?'200 mL':'100 mL';
         const differences=(v.temp===0?1:0)+(v.water===0?1:0);
-        return `<div class="tiles">${tile('甲组','20 ℃ · 100 mL','方糖 1 块 · 不搅拌')}${tile('乙组',`${temp} · ${water}`,'方糖 1 块 · 不搅拌')}</div><div class="tiles">${tile('目前不同的条件',v.temp===null||v.water===null?'设置两组后显示':`${differences} 项`,v.temp===0&&v.water===1?'只改变水温，可以比较':differences===2?'水温和水量一起变，原因混淆':differences===0?'没有改变水温':'再核对水温与水量')}</div>`;
+        return `<div class="tiles">${tile('甲组','20 ℃ · 100 mL','方糖 1 块 · 不搅拌')}${tile('乙组',`${temp} · ${water}`,'方糖 1 块 · 不搅拌')}</div><div class="tiles">${tile('目前不同的条件',v.temp===null||v.water===null?'设置两组后显示':`${differences} 项`,v.temp===null||v.water===null?'完成两组设置再判断':v.temp===0&&v.water===1?'只改变水温，可以比较':differences===2?'水温和水量一起变，原因混淆':differences===0?'没有改变水温':'再核对水温与水量')}</div>`;
       },
       evaluate:v=>({ok:v.temp===0&&v.water===1,message:v.temp===0&&v.water===1?'乙组只改水温，水量、方糖和搅拌方式保持相同。':'比较水温时，乙组要有不同温度，其他条件保持一致。'}),
       hint:'乙组水量仍为 100 mL，温度设为 40 ℃。',takeaway:'对照实验只改变要研究的条件，其余重要条件保持相同。'},
@@ -25,7 +25,7 @@ window.LESSON={
       ],
       scene:(v,{tile})=>{
         const changes=['水温'];if(v.stir===0)changes.push('搅拌');if(v.shape===0)changes.push('颗粒大小');
-        return `<div class="tiles">${tile('常温组','20 ℃ · 不搅拌 · 整块方糖')}${tile('温水组',`40 ℃ · ${v.stir===null?'搅拌待定':v.stir===0?'搅拌':'不搅拌'} · ${v.shape===null?'形态待定':v.shape===0?'糖粉':'整块方糖'}`)}</div><div class="tiles">${tile('改变的条件',v.stir===null||v.shape===null?'先完成设置':changes.join('、'),changes.length===1?'能单独讨论水温':'不能把快慢只归因于水温')}</div>`;
+        return `<div class="tiles">${tile('常温组','20 ℃ · 不搅拌 · 整块方糖')}${tile('温水组',`40 ℃ · ${v.stir===null?'搅拌待定':v.stir===0?'搅拌':'不搅拌'} · ${v.shape===null?'形态待定':v.shape===0?'糖粉':'整块方糖'}`)}</div><div class="tiles">${tile('改变的条件',v.stir===null||v.shape===null?'先完成设置':changes.join('、'),v.stir===null||v.shape===null?'完成两项设置再判断':changes.length===1?'能单独讨论水温':'不能把快慢只归因于水温')}</div>`;
       },
       evaluate:v=>({ok:v.stir===1&&v.shape===1,message:v.stir===1&&v.shape===1?'两组仅水温不同，才能检验“水温是否影响溶解时间”。':'搅拌和颗粒大小也会影响结果；让两组在这些方面一致。'}),
       hint:'两组都不搅拌，且使用一样的整块方糖。',takeaway:'同时改变搅拌或颗粒大小，会让水温的影响无法单独判断。'},

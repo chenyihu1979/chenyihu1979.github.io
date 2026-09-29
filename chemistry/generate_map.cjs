@@ -13,7 +13,7 @@ const lines = [
   '> 来源：https://www.ictr.edu.cn/download_center/ywjy.html',
   '> 已上线仅表示本仓库存在可用页面，待开发不表示学生已学会。', ''
 ];
-let total = 0, live = 0;
+let total = 0, live = 0, prototypes = 0;
 for (const group of groups) {
   lines.push(`## ${group.id} · ${group.title}`, '', `课程主题：${group.theme}`, '');
   for (const [id, name, state, url] of group.items) {
@@ -23,10 +23,13 @@ for (const group of groups) {
       live++;
       if (!url || !fs.existsSync(path.resolve(__dirname, url))) throw Error(`Broken published link: ${id}`);
       lines.push(`- **${id}** ${name} — 已上线`);
+    } else if (state === 'prototype') {
+      prototypes++;
+      lines.push(`- **${id}** ${name} — 已有原型，待验收接入本站`);
     } else lines.push(`- **${id}** ${name} — 待开发`);
   }
   lines.push('');
 }
-lines.splice(6, 0, `共 ${total} 个知识点，其中已上线 ${live} 个；其余保留为明确的开发任务。`, '');
+lines.splice(6, 0, `共 ${total} 个知识点：已上线 ${live} 个，已有原型待接入 ${prototypes} 个，待开发 ${total-live-prototypes} 个。`, '');
 fs.writeFileSync(path.join(__dirname, 'KNOWLEDGE_MAP.md'), lines.join('\n') + '\n');
-console.log(`Generated ${total} topics; ${live} live.`);
+console.log(`Generated ${total} topics; ${live} live, ${prototypes} prototypes.`);

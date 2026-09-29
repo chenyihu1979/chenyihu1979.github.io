@@ -24,8 +24,8 @@
     .group small{color:#587472}.theme{font-size:12px;color:#4a746a;margin:0 0 12px}
     ul{list-style:none;margin:0 0 17px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
     li{padding:12px;border:1px solid #e1eeeb;border-radius:10px;line-height:1.5;overflow-wrap:anywhere}
-    li.live{border-color:#77bfb2;background:#f1fbf8} .id{font-weight:700;color:#226b67;margin-right:7px}
-    .status{display:inline-block;font-size:12px;color:#6b7d7d;margin-left:6px}.live .status{color:#176c66;font-weight:700}
+    li.live{border-color:#77bfb2;background:#f1fbf8} li.prototype{border-color:#e4c892;background:#fffaf0} .id{font-weight:700;color:#226b67;margin-right:7px}
+    .status{display:inline-block;font-size:12px;color:#6b7d7d;margin-left:6px}.live .status{color:#176c66;font-weight:700}.prototype .status{color:#8b5d17;font-weight:700}
     .empty{display:none;padding:30px;background:white;border-radius:12px} footer{color:#5c7372;line-height:1.7;font-size:13px;margin-top:22px}
     @media(max-width:650px){ul{grid-template-columns:1fr}.group summary{flex-wrap:wrap}}
   </style>
@@ -33,7 +33,7 @@
 <body><main>
   <a class="back" href="../index.html">🏠 返回学习中心</a>
   <header><p>初中化学 · 柳州学习路径</p><h1>从现象走到方程式</h1>
-    <p>先动手看见变化，再弄清原子、元素和化学式，最后用方程式解释现象。这张地图涵盖初中化学主要学习内容；“待开发”表示学习页还未上线。</p></header>
+    <p>先动手看见变化，再弄清原子、元素和化学式，最后用方程式解释现象。地图区分“已上线”“已有原型·待接入”和“待开发”，原型暂不能从本站打开。</p></header>
   <div class="first"><b>建议第一步：</b>打开“CB02 元素导航中心”，只认得常用元素的名称与符号即可。学方程式时再回来看化学式，不用一次背完全部内容。<br>
     <a href="./cb02/index.html">进入已上线的元素导航中心 →</a></div>
   <div class="controls"><input id="search" type="search" placeholder="找知识点，如 配平、过滤、酸碱" aria-label="搜索知识点">
@@ -48,7 +48,7 @@
   const data=window.CHEMISTRY_MAP, groups=document.getElementById('groups'), count=document.getElementById('count');
   const search=document.getElementById('search'), all=document.getElementById('all'), live=document.getElementById('live');
   let onlyLive=false;
-  const total=data.reduce((n,g)=>n+g.items.length,0), published=data.reduce((n,g)=>n+g.items.filter(x=>x[2]==='live').length,0);
+  const total=data.reduce((n,g)=>n+g.items.length,0), published=data.reduce((n,g)=>n+g.items.filter(x=>x[2]==='live').length,0), prototypes=data.reduce((n,g)=>n+g.items.filter(x=>x[2]==='prototype').length,0);
   function draw(){
     const query=search.value.trim().toLocaleLowerCase(); let shown=0; groups.replaceChildren();
     for(const group of data){
@@ -64,12 +64,12 @@
         code.className='id';code.textContent=item[0];row.append(code);
         if(item[2]==='live'){
           row.className='live';const link=document.createElement('a');link.href=item[3];link.textContent=item[1];row.append(link);status.textContent='已上线';
-        }else{row.append(document.createTextNode(item[1]));status.textContent='待开发';}
+        }else{row.append(document.createTextNode(item[1]));if(item[2]==='prototype'){row.className='prototype';status.textContent='已有原型·待接入'}else status.textContent='待开发';}
         status.className='status';row.append(status);list.append(row);
       }
       details.append(list);groups.append(details);
     }
-    count.textContent=`显示 ${shown} / ${total} 个知识点 · 已上线 ${published} 个`;
+    count.textContent=`显示 ${shown} / ${total} 个知识点 · 已上线 ${published} 个 · 已有原型 ${prototypes} 个`;
     document.getElementById('empty').style.display=shown?'none':'block';
     all.setAttribute('aria-pressed',String(!onlyLive));live.setAttribute('aria-pressed',String(onlyLive));
   }
